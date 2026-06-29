@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "../../components/Header";
 import TrendingProducts from "../../components/TrendingProducts";
 import ProductGrid from "../../components/ProductGrid";
@@ -49,17 +50,25 @@ const HomePage: React.FC = () => {
           <p className={styles.heroDesc}>
             Art-directed objects, functional furniture, and garments refined by hand to form elegant spaces.
           </p>
-          <button
-            onClick={() => {
-              const gridElement = document.getElementById("products-grid");
-              if (gridElement) {
-                gridElement.scrollIntoView({ behavior: "smooth" });
-              }
-            }}
-            className={styles.heroBtn}
-          >
-            Explore Catalog
-          </button>
+          <div className={styles.heroActionGroup}>
+            <Link
+              to="/products"
+              className={styles.heroBtnPrimary}
+            >
+              Shop Full Catalog
+            </Link>
+            <button
+              onClick={() => {
+                const gridElement = document.getElementById("products-grid");
+                if (gridElement) {
+                  gridElement.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              className={styles.heroBtnSecondary}
+            >
+              Explore Collection
+            </button>
+          </div>
         </section>
 
         {/* Trending Collection Carousel Section */}

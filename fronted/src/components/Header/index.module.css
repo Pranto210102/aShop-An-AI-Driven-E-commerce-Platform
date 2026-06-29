@@ -119,3 +119,7 @@
 .mobileNavLink {
   @apply block py-2 text-base font-medium text-[var(--text)] hover:text-[var(--text-h)] transition-colors;
 }
+
+.shopLink {
+  @apply hidden sm:inline-block text-xs font-bold uppercase tracking-wider text-[var(--text)] hover:text-[var(--accent)] transition-colors no-underline ml-2 cursor-pointer;
+}

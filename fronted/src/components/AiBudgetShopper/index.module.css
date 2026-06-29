@@ -2,12 +2,31 @@
 
 /* Floating Button Trigger */
 .floatingButton {
-  @apply fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold text-xs uppercase tracking-wider shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 animate-pulse cursor-pointer;
+  @apply fixed bottom-6 right-6 z-40 flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold text-xs uppercase tracking-wider shadow-2xl hover:scale-105 active:scale-95 transition-all duration-500 ease-out animate-pulse cursor-pointer overflow-hidden p-0;
   box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.4);
+  width: 48px;
+  height: 48px;
+  max-width: 48px;
 }
 
 .floatingButton:hover {
   animation: none;
+  max-width: 220px;
+  width: auto;
+  @apply px-5;
+}
+
+.floatingButton span {
+  @apply overflow-hidden transition-all duration-500 ease-out;
+  max-width: 0px;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.floatingButton:hover span {
+  max-width: 150px;
+  opacity: 1;
+  @apply ml-2;
 }
 
 .aiIcon {

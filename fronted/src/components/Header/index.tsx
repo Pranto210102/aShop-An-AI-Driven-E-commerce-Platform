@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
 import { CATEGORIES } from "../../data/mockdata/products";
 import { useCart } from "../../context/CartContext";
+import { useTheme } from "../../context/ThemeContext";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -19,6 +20,7 @@ const Header: React.FC<HeaderProps> = ({
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const wishlistCount = wishlist.length;
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -67,12 +69,17 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <header className={`${styles.header} ${isScrolled ? styles.scrolled : ""}`}>
       <div className={styles.container}>
-        {/* Logo */}
-        <Link to="/" className={styles.logoArea}>
-          <span className={styles.logoText}>
-            aShop<span className={styles.accentDot}></span>
-          </span>
-        </Link>
+        {/* Logo & Navigation */}
+        <div className="flex items-center gap-6">
+          <Link to="/" className={styles.logoArea}>
+            <span className={styles.logoText}>
+              aShop<span className={styles.accentDot}></span>
+            </span>
+          </Link>
+          <Link to="/products" className={styles.shopLink}>
+            Shop Catalog
+          </Link>
+        </div>
 
         {/* Search Bar / Categories (Large Screens) */}
         <form onSubmit={handleSearchSubmit} className={styles.searchWrapper}>
@@ -154,6 +161,34 @@ const Header: React.FC<HeaderProps> = ({
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
+          </button>
+
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            className={styles.iconButton}
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+          >
+            {theme === "light" ? (
+              <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                />
+              </svg>
+            ) : (
+              <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"
+                />
+              </svg>
+            )}
           </button>
 
           {/* Login / Profile */}
