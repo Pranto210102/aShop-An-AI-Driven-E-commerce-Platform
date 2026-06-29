@@ -1,0 +1,264 @@
+@reference "tailwindcss";
+
+.pageWrapper {
+  @apply flex flex-col min-h-screen w-full bg-[var(--bg)] text-[var(--text)];
+}
+
+.container {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 flex-grow;
+}
+
+/* Profile Header Section */
+.profileHeader {
+  @apply flex flex-col sm:flex-row items-center sm:items-start gap-6 border-b border-[var(--border)] pb-8 mb-8 text-center sm:text-left;
+}
+
+.avatarWrapper {
+  @apply w-24 h-24 rounded-full overflow-hidden border-2 border-[var(--border)] shadow-sm;
+}
+
+.avatar {
+  @apply w-full h-full object-cover;
+}
+
+.profileMeta {
+  @apply flex flex-col gap-1.5 justify-center;
+}
+
+.nameRow {
+  @apply flex flex-col sm:flex-row items-center gap-3;
+}
+
+.userName {
+  @apply text-3xl font-light tracking-tight text-[var(--text-h)] m-0;
+}
+
+.tierBadge {
+  @apply px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-widest rounded-full text-white bg-[var(--text-h)] dark:bg-[var(--accent)];
+}
+
+.userEmail {
+  @apply text-sm text-[var(--text)] opacity-85 m-0;
+}
+
+.userJoined {
+  @apply text-[11px] text-[var(--text)] opacity-70 m-0 uppercase tracking-wider font-semibold;
+}
+
+/* Grid Layout */
+.profileGrid {
+  @apply grid grid-cols-1 lg:grid-cols-12 gap-8 items-start;
+}
+
+.sidebar {
+  @apply lg:col-span-4;
+}
+
+.sidebarCard {
+  @apply border border-[var(--border)] rounded-2xl p-6 bg-[var(--bg)] shadow-xs text-left;
+}
+
+.sidebarCardTitle {
+  @apply text-xs font-bold uppercase tracking-widest text-[var(--text-h)] mb-4 m-0;
+}
+
+.sidebarCardBio {
+  @apply text-xs italic leading-relaxed text-[var(--text)] opacity-95 mb-6;
+}
+
+.sidebarMetaItem {
+  @apply flex justify-between py-3 border-t border-[var(--border)] text-xs font-semibold;
+}
+
+.metaLabel {
+  @apply text-[var(--text)] opacity-80;
+}
+
+.metaValue {
+  @apply text-[var(--text-h)] font-bold;
+}
+
+/* Tabs Dashboard (Right Side) */
+.tabContentArea {
+  @apply lg:col-span-8 flex flex-col gap-6 text-left;
+}
+
+.tabNav {
+  @apply flex border-b border-[var(--border)] gap-6 overflow-x-auto pb-0.5;
+}
+
+.tabBtn {
+  @apply py-3 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-[var(--text)] transition-all cursor-pointer bg-transparent border-0 outline-none hover:text-[var(--text-h)];
+}
+
+.tabBtnActive {
+  @apply border-[var(--text-h)] text-[var(--text-h)] font-extrabold dark:border-[var(--accent)] dark:text-[var(--accent)];
+}
+
+.tabBody {
+  @apply pt-2;
+}
+
+/* Order History Tab styling */
+.ordersList {
+  @apply flex flex-col gap-6;
+}
+
+.orderCard {
+  @apply border border-[var(--border)] rounded-2xl overflow-hidden bg-[var(--bg)] shadow-xs;
+}
+
+.orderHeader {
+  @apply grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-[var(--code-bg)] border-b border-[var(--border)] text-xs font-semibold;
+}
+
+.orderMetaCol {
+  @apply flex flex-col gap-1;
+}
+
+.orderIdLabel, .orderDateLabel, .orderStatusLabel {
+  @apply text-[10px] text-[var(--text)] opacity-70 uppercase tracking-wider;
+}
+
+.orderIdValue, .orderDateValue {
+  @apply text-[var(--text-h)] font-bold;
+}
+
+.statusLabel {
+  @apply text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full w-fit;
+}
+
+.statusLabel.delivered {
+  @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300;
+}
+
+.statusLabel.intransit {
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300;
+}
+
+.statusLabel.processing {
+  @apply bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300;
+}
+
+.orderMetaTotalCol {
+  @apply flex items-center md:justify-end text-xs font-medium text-[var(--text-h)];
+}
+
+.orderItems {
+  @apply p-5 flex flex-col gap-4 divide-y divide-[var(--border)] divide-dashed;
+}
+
+.orderItem {
+  @apply flex gap-4 items-center pt-4 first:pt-0;
+}
+
+.itemThumb {
+  @apply w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-lg overflow-hidden p-1 flex items-center justify-center border border-[var(--border)];
+}
+
+.itemThumb img {
+  @apply max-h-full max-w-full object-contain;
+}
+
+.itemMeta {
+  @apply flex flex-col gap-0.5;
+}
+
+.itemName {
+  @apply text-xs font-bold text-[var(--text-h)] m-0;
+}
+
+.itemPrice {
+  @apply text-[11px] font-semibold text-[var(--text)] opacity-85;
+}
+
+/* Shipping Addresses tab styling */
+.addressGrid {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+}
+
+.addressCard {
+  @apply border border-[var(--border)] rounded-2xl p-5 bg-[var(--bg)] flex flex-col gap-1 text-left relative;
+}
+
+.defaultAddress {
+  @apply border-[var(--text-h)] dark:border-[var(--accent)];
+}
+
+.addressCardHeader {
+  @apply flex mb-2;
+}
+
+.addressTag {
+  @apply text-[9px] font-extrabold uppercase tracking-widest bg-[var(--text-h)] text-[var(--bg)] px-2 py-0.5 rounded-full dark:bg-[var(--accent)];
+}
+
+.addressName {
+  @apply text-xs font-bold text-[var(--text-h)] m-0 mb-1;
+}
+
+.addressLine, .addressCity, .addressPhone {
+  @apply text-xs text-[var(--text)] opacity-90 m-0 leading-relaxed;
+}
+
+.addAddressBtn {
+  @apply mt-6 px-5 py-2.5 border border-dashed border-[var(--border)] rounded-full text-xs font-bold uppercase tracking-wider text-[var(--text)] hover:bg-[var(--code-bg)] hover:text-[var(--text-h)] transition-colors cursor-pointer w-fit bg-transparent;
+}
+
+/* Preferences Tab styling */
+.prefSectionTitle {
+  @apply text-xs font-bold uppercase tracking-widest text-[var(--text-h)] mb-4 mt-6 first:mt-0;
+}
+
+.prefOptionGroup {
+  @apply flex flex-col gap-4 border border-[var(--border)] rounded-2xl p-5 bg-[var(--bg)] mb-6;
+}
+
+.checkboxLabel {
+  @apply flex items-center gap-3 cursor-pointer select-none text-xs text-[var(--text)] hover:text-[var(--text-h)] transition-colors;
+}
+
+.checkboxInput {
+  @apply w-4 h-4 rounded border-[var(--border)] accent-[var(--text-h)] dark:accent-[var(--accent)] cursor-pointer m-0;
+}
+
+.checkboxText {
+  @apply text-xs font-semibold;
+}
+
+/* Loading Skeleton Layout */
+.skeletonContainer {
+  @apply flex flex-col gap-10 animate-pulse;
+}
+
+.skeletonHeader {
+  @apply flex items-center gap-6 border-b border-[var(--border)] pb-8;
+}
+
+.skeletonAvatar {
+  @apply w-24 h-24 rounded-full bg-zinc-200 dark:bg-zinc-800;
+}
+
+.skeletonTextCol {
+  @apply flex flex-col gap-3 flex-grow max-w-sm;
+}
+
+.skeletonTitle {
+  @apply h-8 bg-zinc-200 dark:bg-zinc-800 rounded-lg w-2/3;
+}
+
+.skeletonSubtitle {
+  @apply h-4 bg-zinc-200 dark:bg-zinc-800 rounded-lg w-1/2;
+}
+
+.skeletonBody {
+  @apply grid grid-cols-1 lg:grid-cols-12 gap-8;
+}
+
+.skeletonLeftCard {
+  @apply lg:col-span-4 h-64 bg-zinc-200 dark:bg-zinc-800 rounded-2xl;
+}
+
+.skeletonRightTabs {
+  @apply lg:col-span-8 h-80 bg-zinc-200 dark:bg-zinc-800 rounded-2xl;
+}

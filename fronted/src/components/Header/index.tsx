@@ -157,7 +157,7 @@ const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Login / Profile */}
-          <button className={styles.iconButton} aria-label="Account">
+          <Link to="/profile" className={styles.iconButton} aria-label="Account">
             <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -166,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({
                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               />
             </svg>
-          </button>
+          </Link>
 
           {/* Favorites / Heart Icon */}
           <Link to="/favorites" className={styles.iconButton} aria-label="Favorites">
