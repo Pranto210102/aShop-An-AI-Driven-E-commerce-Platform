@@ -169,7 +169,7 @@ const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Favorites / Heart Icon */}
-          <button className={styles.iconButton} aria-label="Favorites">
+          <Link to="/favorites" className={styles.iconButton} aria-label="Favorites">
             <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -179,7 +179,7 @@ const Header: React.FC<HeaderProps> = ({
               />
             </svg>
             {wishlistCount > 0 && <span className={styles.badge}>{wishlistCount}</span>}
-          </button>
+          </Link>
 
           {/* Cart Icon */}
           <Link to="/cart" className={styles.iconButton} aria-label="Cart">

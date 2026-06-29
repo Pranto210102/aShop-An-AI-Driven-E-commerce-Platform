@@ -107,5 +107,9 @@
 }
 
 .activeDot {
-  @apply w-5 bg-[var(--accent)];
+  @apply w-6 bg-[var(--text-h)];
+}
+
+.cardLink {
+  @apply no-underline text-inherit block h-full;
 }
