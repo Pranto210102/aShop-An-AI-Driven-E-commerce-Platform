@@ -1,19 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./index.module.css";
 import { TRENDING_PRODUCTS } from "../../data/mockdata/products";
-import type { Product } from "../../data/mockdata/products";
+import { useCart } from "../../context/CartContext";
 
-interface TrendingProductsProps {
-  onAddToCart: (product: Product) => void;
-  onToggleWishlist: (product: Product) => void;
-  wishlist: string[];
-}
-
-const TrendingProducts: React.FC<TrendingProductsProps> = ({
-  onAddToCart,
-  onToggleWishlist,
-  wishlist,
-}) => {
+const TrendingProducts: React.FC = () => {
+  const { addToCart, toggleWishlist, wishlist } = useCart();
   const [activeIndex, setActiveIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
   const [isPaused, setIsPaused] = useState(false);
@@ -126,7 +117,7 @@ const TrendingProducts: React.FC<TrendingProductsProps> = ({
                         onClick={(e) => {
                           e.stopPropagation();
                           e.preventDefault();
-                          onToggleWishlist(product);
+                          toggleWishlist(product);
                         }}
                         className={`${styles.wishlistBtn} ${isWishlisted ? styles.wishlistActive : ""}`}
                         aria-label="Add to wishlist"
@@ -154,7 +145,7 @@ const TrendingProducts: React.FC<TrendingProductsProps> = ({
                           onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
-                            onAddToCart(product);
+                            addToCart(product);
                           }}
                           className={styles.actionBtn}
                         >

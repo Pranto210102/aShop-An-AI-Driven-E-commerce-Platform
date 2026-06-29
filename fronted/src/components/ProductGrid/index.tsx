@@ -1,23 +1,18 @@
 import React from "react";
 import styles from "./index.module.css";
 import { GRID_PRODUCTS } from "../../data/mockdata/products";
-import type { Product } from "../../data/mockdata/products";
+import { useCart } from "../../context/CartContext";
 
 interface ProductGridProps {
-  onAddToCart: (product: Product) => void;
-  onToggleWishlist: (product: Product) => void;
-  wishlist: string[];
   searchQuery: string;
   selectedCategory: string | null;
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({
-  onAddToCart,
-  onToggleWishlist,
-  wishlist,
   searchQuery,
   selectedCategory,
 }) => {
+  const { wishlist, addToCart, toggleWishlist } = useCart();
   // Filter products based on search query and category selections
   const filteredProducts = GRID_PRODUCTS.filter((product) => {
     const matchesSearch =
@@ -86,7 +81,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      onToggleWishlist(product);
+                      toggleWishlist(product);
                     }}
                     className={`${styles.wishlistBtn} ${isWishlisted ? styles.wishlistActive : ""}`}
                     aria-label="Add to wishlist"
@@ -114,7 +109,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        onAddToCart(product);
+                        addToCart(product);
                       }}
                       className={styles.quickAddBtn}
                     >
@@ -134,7 +129,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        onAddToCart(product);
+                        addToCart(product);
                       }}
                       className="p-1.5 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 text-[var(--text)] hover:text-[var(--accent)] transition-colors cursor-pointer"
                       aria-label="Add to cart"

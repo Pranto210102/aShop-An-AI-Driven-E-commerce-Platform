@@ -1,22 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./index.module.css";
 import { CATEGORIES } from "../../data/mockdata/products";
+import { useCart } from "../../context/CartContext";
 
 interface HeaderProps {
-  cartCount: number;
-  wishlistCount: number;
-  onSearch: (query: string) => void;
-  onSelectCategory: (category: string | null) => void;
-  selectedCategory: string | null;
+  onSearch?: (query: string) => void;
+  onSelectCategory?: (category: string | null) => void;
+  selectedCategory?: string | null;
 }
 
 const Header: React.FC<HeaderProps> = ({
-  cartCount,
-  wishlistCount,
   onSearch,
   onSelectCategory,
-  selectedCategory,
+  selectedCategory = null,
 }) => {
+  const { cart, wishlist } = useCart();
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const wishlistCount = wishlist.length;
+  const navigate = useNavigate();
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -45,11 +48,19 @@ const Header: React.FC<HeaderProps> = ({
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(searchQuery);
+    if (onSearch) {
+      onSearch(searchQuery);
+    } else {
+      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
+    }
   };
 
   const handleCategorySelect = (category: string | null) => {
-    onSelectCategory(category);
+    if (onSelectCategory) {
+      onSelectCategory(category);
+    } else {
+      navigate(category ? `/products?category=${encodeURIComponent(category)}` : "/products");
+    }
     setIsCategoryOpen(false);
   };
 
@@ -57,11 +68,11 @@ const Header: React.FC<HeaderProps> = ({
     <header className={`${styles.header} ${isScrolled ? styles.scrolled : ""}`}>
       <div className={styles.container}>
         {/* Logo */}
-        <div className={styles.logoArea} onClick={() => handleCategorySelect(null)}>
+        <Link to="/" className={styles.logoArea}>
           <span className={styles.logoText}>
             aShop<span className={styles.accentDot}></span>
           </span>
-        </div>
+        </Link>
 
         {/* Search Bar / Categories (Large Screens) */}
         <form onSubmit={handleSearchSubmit} className={styles.searchWrapper}>
@@ -171,7 +182,7 @@ const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Cart Icon */}
-          <button className={styles.iconButton} aria-label="Cart">
+          <Link to="/cart" className={styles.iconButton} aria-label="Cart">
             <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -181,7 +192,7 @@ const Header: React.FC<HeaderProps> = ({
               />
             </svg>
             {cartCount > 0 && <span className={styles.badge}>{cartCount}</span>}
-          </button>
+          </Link>
 
           {/* Burger Menu for Mobile */}
           <button

@@ -1,0 +1,118 @@
+@reference "tailwindcss";
+
+.pageWrapper {
+  @apply flex flex-col min-h-screen w-full bg-[var(--bg)] text-[var(--text)];
+}
+
+.container {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10;
+}
+
+/* Page Header and Filtering Options */
+.pageHeader {
+  @apply flex flex-col md:flex-row md:items-center md:justify-between border-b border-[var(--border)] pb-6 mb-8 gap-4;
+}
+
+.titleArea {
+  @apply text-left;
+}
+
+.title {
+  @apply text-3xl font-light tracking-tight text-[var(--text-h)];
+}
+
+.subtitle {
+  @apply text-xs text-[var(--text)] mt-1;
+}
+
+.filterControls {
+  @apply flex flex-wrap items-center gap-4;
+}
+
+/* Custom Select Styling */
+.sortSelect {
+  @apply px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-[var(--border)] rounded-full bg-[var(--bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] cursor-pointer;
+}
+
+.categoryPills {
+  @apply flex flex-wrap gap-2 mb-8;
+}
+
+.pill {
+  @apply px-4 py-1.5 rounded-full text-xs font-semibold border border-[var(--border)] text-[var(--text)] transition-colors hover:bg-[var(--code-bg)] cursor-pointer;
+}
+
+.activePill {
+  @apply bg-[var(--text-h)] text-[var(--bg)] border-[var(--text-h)];
+}
+
+/* Catalog Grid */
+.grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6;
+}
+
+/* Card Styling */
+.card {
+  @apply flex flex-col cursor-pointer;
+}
+
+.imageWrapper {
+  @apply relative aspect-square w-full overflow-hidden bg-[#f4f4f6] dark:bg-zinc-800 transition-all duration-500 ease-out p-8 flex items-center justify-center rounded-[20px];
+}
+
+.image {
+  @apply max-h-full max-w-full object-contain transition-transform duration-700 ease-out group-hover:scale-110;
+}
+
+.badge {
+  @apply absolute top-4 left-4 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full text-white bg-[var(--text-h)] z-10;
+}
+
+.wishlistBtn {
+  @apply absolute top-4 right-4 p-2 rounded-full bg-white/80 backdrop-blur-sm text-zinc-800 hover:bg-white hover:text-[var(--accent)] transition-all shadow-sm z-10;
+}
+
+.wishlistActive {
+  @apply text-[var(--accent)] bg-white;
+}
+
+.info {
+  @apply mt-4 text-left flex flex-col gap-1;
+}
+
+.category {
+  @apply text-[10px] font-bold uppercase tracking-widest text-[var(--text)] opacity-80;
+}
+
+.name {
+  @apply text-base font-medium text-[var(--text-h)] transition-colors hover:text-[var(--accent)] truncate;
+}
+
+.details {
+  @apply flex items-center justify-between mt-1;
+}
+
+.price {
+  @apply text-lg font-semibold text-[var(--text-h)];
+}
+
+/* Card Shape Varieties mimicking Home Grid */
+.shapeTopRightRound {
+  border-top-right-radius: 64px;
+}
+.shapeOvalRight {
+  border-top-right-radius: 96px;
+  border-bottom-right-radius: 96px;
+}
+.shapeWavy {
+  border-top-left-radius: 64px;
+  border-bottom-right-radius: 64px;
+}
+.shapeDiagonalRound {
+  border-top-right-radius: 64px;
+  border-bottom-left-radius: 64px;
+}
+
+.emptyState {
+  @apply text-center py-20 border border-dashed border-[var(--border)] rounded-3xl;
+}
