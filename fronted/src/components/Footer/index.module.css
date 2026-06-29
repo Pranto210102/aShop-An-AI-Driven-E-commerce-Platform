@@ -1,0 +1,78 @@
+@reference "tailwindcss";
+
+.footer {
+  @apply py-16 px-4 sm:px-6 lg:px-8 border-t border-[var(--border)] mt-auto;
+  background-color: var(--bg);
+}
+
+.container {
+  @apply mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-4 gap-10 text-left;
+}
+
+.brandCol {
+  @apply flex flex-col gap-4;
+}
+
+.logoText {
+  @apply font-bold text-xl tracking-wider text-[var(--text-h)];
+}
+
+.brandDesc {
+  @apply text-xs text-[var(--text)] leading-relaxed;
+}
+
+.socials {
+  @apply flex items-center gap-3 mt-2;
+}
+
+.socialLink {
+  @apply p-2 rounded-full border border-[var(--border)] text-[var(--text)] hover:text-[var(--text-h)] hover:border-[var(--text-h)] transition-all cursor-pointer;
+}
+
+.navCol {
+  @apply flex flex-col gap-3;
+}
+
+.colTitle {
+  @apply text-xs font-bold uppercase tracking-widest text-[var(--text-h)] mb-2;
+}
+
+.link {
+  @apply text-xs text-[var(--text)] hover:text-[var(--accent)] hover:translate-x-1 transition-all cursor-pointer;
+}
+
+.newsletterCol {
+  @apply flex flex-col gap-3;
+}
+
+.newsletterForm {
+  @apply flex flex-col gap-2.5 mt-2;
+}
+
+.inputGroup {
+  @apply relative;
+}
+
+.emailInput {
+  @apply w-full px-4 py-2.5 rounded-full border border-[var(--border)] bg-transparent text-xs text-[var(--text)] placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all;
+}
+
+.submitBtn {
+  @apply w-full px-5 py-2.5 rounded-full bg-[var(--text-h)] text-[var(--bg)] font-semibold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer;
+}
+
+.bottomBar {
+  @apply mx-auto max-w-7xl border-t border-[var(--border)] pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--text)];
+}
+
+.credits {
+  @apply flex items-center gap-1.5;
+}
+
+.heartIcon {
+  @apply w-3.5 h-3.5 text-red-500 fill-red-500 animate-pulse;
+}
+
+.payments {
+  @apply flex items-center gap-2 opacity-80;
+}

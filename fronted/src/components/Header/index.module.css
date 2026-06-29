@@ -1,0 +1,121 @@
+@reference "tailwindcss";
+
+.header {
+  @apply sticky top-0 z-50 w-full transition-all duration-300;
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.scrolled {
+  @apply shadow-md backdrop-blur-md;
+}
+
+.container {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4;
+}
+
+.logoArea {
+  @apply flex items-center gap-2 flex-shrink-0 cursor-pointer;
+}
+
+.logoText {
+  @apply font-semibold text-2xl tracking-tight text-[var(--text-h)] transition-colors;
+}
+
+.accentDot {
+  @apply w-2 h-2 rounded-full bg-[var(--accent)] inline-block;
+}
+
+/* Search Section */
+.searchWrapper {
+  @apply hidden md:flex items-center flex-1 max-w-2xl mx-8 relative;
+}
+
+.searchInput {
+  @apply w-full pl-5 pr-32 py-2.5 rounded-full border bg-transparent text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent text-[var(--text)] border-[var(--border)];
+}
+
+.searchActions {
+  @apply absolute right-1.5 flex items-center gap-1;
+}
+
+/* Category Dropdown */
+.categoryDropdown {
+  @apply relative;
+}
+
+.categoryBtn {
+  @apply flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-[var(--border)] text-[var(--text)] hover:bg-[var(--code-bg)] transition-colors cursor-pointer;
+}
+
+.categoryMenu {
+  @apply absolute right-0 mt-2 w-48 rounded-2xl shadow-xl border bg-[var(--bg)] border-[var(--border)] py-2 z-50 transform origin-top-right transition-all duration-200 scale-100 opacity-100;
+}
+
+.categoryItem {
+  @apply w-full text-left px-4 py-2 text-sm text-[var(--text)] hover:bg-[var(--code-bg)] hover:text-[var(--text-h)] transition-colors cursor-pointer;
+}
+
+.searchButton {
+  @apply p-2 rounded-full bg-[var(--accent)] text-white hover:opacity-95 transition-opacity cursor-pointer;
+}
+
+/* Right Nav Buttons */
+.navActions {
+  @apply flex items-center gap-1.5 sm:gap-3;
+}
+
+.iconButton {
+  @apply relative p-2.5 rounded-full hover:bg-[var(--code-bg)] text-[var(--text)] hover:text-[var(--text-h)] transition-all cursor-pointer;
+}
+
+.badge {
+  @apply absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-white ring-2 ring-[var(--bg)] animate-pulse;
+}
+
+/* Mobile search and mobile nav triggers */
+.mobileMenuBtn {
+  @apply md:hidden p-2.5 rounded-full hover:bg-[var(--code-bg)] text-[var(--text)] transition-colors cursor-pointer;
+}
+
+/* Mobile Nav Drawer */
+.mobileDrawer {
+  @apply fixed inset-0 z-50 flex md:hidden transition-opacity duration-300;
+}
+
+.drawerOverlay {
+  @apply fixed inset-0 bg-black/40 backdrop-blur-sm;
+}
+
+.drawerContent {
+  @apply relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto py-6 px-5 shadow-2xl transition-transform duration-300 ease-in-out;
+  background-color: var(--bg);
+}
+
+.drawerHeader {
+  @apply flex items-center justify-between mb-8;
+}
+
+.closeButton {
+  @apply p-2 rounded-full hover:bg-[var(--code-bg)] text-[var(--text)] cursor-pointer;
+}
+
+.mobileSearchWrapper {
+  @apply mb-6 relative;
+}
+
+.mobileSearchInput {
+  @apply w-full pl-4 pr-10 py-2.5 rounded-xl border bg-transparent text-sm text-[var(--text)] border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)];
+}
+
+.mobileSearchIcon {
+  @apply absolute right-3 top-3 text-[var(--text)];
+}
+
+.mobileNavList {
+  @apply flex flex-col gap-4;
+}
+
+.mobileNavLink {
+  @apply block py-2 text-base font-medium text-[var(--text)] hover:text-[var(--text-h)] transition-colors;
+}

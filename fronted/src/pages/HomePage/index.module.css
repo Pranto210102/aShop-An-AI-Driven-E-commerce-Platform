@@ -1,0 +1,43 @@
+@reference "tailwindcss";
+
+.pageWrapper {
+  @apply flex flex-col min-h-screen w-full;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* Banner / Hero Section */
+.heroBanner {
+  @apply flex flex-col items-center justify-center text-center py-20 px-4 sm:px-6 lg:px-8 border-b border-[var(--border)];
+  background: radial-gradient(circle at 50% 50%, var(--code-bg) 0%, var(--bg) 100%);
+}
+
+.heroTag {
+  @apply text-xs font-bold uppercase tracking-widest text-[var(--accent)] mb-4;
+}
+
+.heroTitle {
+  @apply text-4xl sm:text-6xl font-light tracking-tight text-[var(--text-h)] max-w-3xl leading-[1.15] mb-6;
+  font-family: var(--heading);
+}
+
+.heroDesc {
+  @apply text-sm sm:text-base text-[var(--text)] max-w-xl leading-relaxed mb-8;
+}
+
+.heroBtn {
+  @apply px-8 py-3.5 rounded-full bg-[var(--text-h)] text-[var(--bg)] font-semibold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-md cursor-pointer;
+}
+
+/* Alert Notification toast */
+.toast {
+  @apply fixed bottom-5 right-5 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[var(--text-h)] text-[var(--bg)] shadow-2xl border border-[var(--border)] animate-bounce duration-300;
+}
+
+.toastCheck {
+  @apply flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white font-bold text-xs;
+}
+
+.toastText {
+  @apply text-xs font-medium;
+}
