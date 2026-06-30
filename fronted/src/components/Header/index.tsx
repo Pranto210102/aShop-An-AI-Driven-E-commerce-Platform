@@ -4,6 +4,7 @@ import styles from "./index.module.css";
 import { CATEGORIES } from "../../data/mockdata/products";
 import { useCart } from "../../context/CartContext";
 import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthContext";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -21,6 +22,7 @@ const Header: React.FC<HeaderProps> = ({
   const wishlistCount = wishlist.length;
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -192,7 +194,7 @@ const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Login / Profile */}
-          <Link to="/profile" className={styles.iconButton} aria-label="Account">
+          <Link to={user ? "/profile" : "/login"} className={styles.iconButton} aria-label="Account">
             <svg className="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"

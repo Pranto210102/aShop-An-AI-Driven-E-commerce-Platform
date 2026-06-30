@@ -59,10 +59,14 @@ export const getProducts = async (req, res) => {
 
     // Initialize sort option
     let sortOption = {};
-    if (sortBy === "price-asc") {
+    if (sortBy === "price-asc" || sortBy === "price-low") {
       sortOption.price = 1;
-    } else if (sortBy === "price-desc") {
+    } else if (sortBy === "price-desc" || sortBy === "price-high") {
       sortOption.price = -1;
+    } else if (sortBy === "name-asc") {
+      sortOption.name = 1;
+    } else if (sortBy === "name-desc") {
+      sortOption.name = -1;
     } else if (sortBy === "rating") {
       sortOption.rating = -1;
     } else {

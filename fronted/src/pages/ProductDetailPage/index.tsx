@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { TRENDING_PRODUCTS, GRID_PRODUCTS } from "../../data/mockdata/products";
+import { type Product } from "../../data/mockdata/products";
 import { useCart } from "../../context/CartContext";
 import styles from "./index.module.css";
 
@@ -11,10 +11,31 @@ const ProductDetailPage: React.FC = () => {
   const { wishlist, addToCart, toggleWishlist, showToast } = useCart();
   const [quantity, setQuantity] = useState(1);
 
-  // Find product by id
-  const product = useMemo(() => {
-    const combined = [...TRENDING_PRODUCTS, ...GRID_PRODUCTS];
-    return combined.find((p) => p.id === productId);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) return;
+      try {
+        setIsLoading(true);
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const res = await fetch(`${API_URL}/api/products/${productId}`);
+        const data = await res.json();
+        if (data.success) {
+          setProduct({
+            ...data.data,
+            id: data.data._id,
+          });
+        }
+      } catch (err) {
+        console.error("Single Product Fetch Error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
   }, [productId]);
 
   const isWishlisted = product ? wishlist.includes(product.id) : false;
@@ -41,6 +62,18 @@ const ProductDetailPage: React.FC = () => {
         return "";
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className={styles.notFoundWrapper}>
+        <Header />
+        <main className={styles.notFoundContainer}>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--text-h)]" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (

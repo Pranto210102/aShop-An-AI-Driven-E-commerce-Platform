@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import { useAuth } from "../../context/AuthContext";
 import styles from "./index.module.css";
 
-interface UserProfile {
-  name: string;
-  email: string;
-  avatar: string;
-  bio: string;
-  location: string;
-  memberSince: string;
-  tier: string;
-}
 
 interface OrderItem {
   id: string;
@@ -29,24 +22,21 @@ interface Order {
 }
 
 const ProfilePage: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"orders" | "addresses" | "preferences">("orders");
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const { user, logout, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"orders" | "addresses" | "preferences" | "logout">("orders");
   const [orders, setOrders] = useState<Order[]>([]);
 
-  // Simulation loading delay (mocking backend fetch)
+  // Redirect to login if user is not authenticated
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setUser({
-        name: "Elian Vance",
-        email: "elian.vance@studio.design",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
-        bio: "Architect and collector of sculptural home contours. Curator of minimal functional furniture and bespoke lighting designs.",
-        location: "Dhaka, Bangladesh",
-        memberSince: "January 2025",
-        tier: "Collector Elite",
-      });
+    if (!authLoading && !user) {
+      navigate("/login?redirect=/profile");
+    }
+  }, [user, authLoading, navigate]);
 
+  // Set mock orders on load
+  useEffect(() => {
+    if (user) {
       setOrders([
         {
           id: "ASP-78901",
@@ -83,11 +73,15 @@ const ProfilePage: React.FC = () => {
           ],
         },
       ]);
-      setIsLoading(false);
-    }, 1200);
+    }
+  }, [user]);
 
-    return () => clearTimeout(timer);
-  }, []);
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  const isLoading = authLoading || !user;
 
   return (
     <div className={styles.pageWrapper}>
@@ -115,15 +109,19 @@ const ProfilePage: React.FC = () => {
               {/* Profile Header Dashboard */}
               <section className={styles.profileHeader}>
                 <div className={styles.avatarWrapper}>
-                  <img src={user.avatar} alt={user.name} className={styles.avatar} />
+                  <img
+                    src={user.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400"}
+                    alt={user.name}
+                    className={styles.avatar}
+                  />
                 </div>
                 <div className={styles.profileMeta}>
                   <div className={styles.nameRow}>
                     <h1 className={styles.userName}>{user.name}</h1>
-                    <span className={styles.tierBadge}>{user.tier}</span>
+                    <span className={styles.tierBadge}>Collector Elite</span>
                   </div>
                   <p className={styles.userEmail}>{user.email}</p>
-                  <p className={styles.userJoined}>Member since {user.memberSince}</p>
+                  <p className={styles.userJoined}>Member since January 2025</p>
                 </div>
               </section>
 
@@ -133,10 +131,12 @@ const ProfilePage: React.FC = () => {
                 <aside className={styles.sidebar}>
                   <div className={styles.sidebarCard}>
                     <h3 className={styles.sidebarCardTitle}>About Curator</h3>
-                    <p className={styles.sidebarCardBio}>"{user.bio}"</p>
+                    <p className={styles.sidebarCardBio}>
+                      "Architect and collector of sculptural home contours. Curator of minimal functional furniture and bespoke lighting designs."
+                    </p>
                     <div className={styles.sidebarMetaItem}>
                       <span className={styles.metaLabel}>Current Base</span>
-                      <span className={styles.metaValue}>{user.location}</span>
+                      <span className={styles.metaValue}>Dhaka, Bangladesh</span>
                     </div>
                     <div className={styles.sidebarMetaItem}>
                       <span className={styles.metaLabel}>Preferences</span>
@@ -169,6 +169,13 @@ const ProfilePage: React.FC = () => {
                       className={`${styles.tabBtn} ${activeTab === "preferences" ? styles.tabBtnActive : ""}`}
                     >
                       Settings & Prefs
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className={styles.tabBtn}
+                    >
+                      Sign Out
                     </button>
                   </div>
 

@@ -1,0 +1,78 @@
+@reference "tailwindcss";
+
+.pageWrapper {
+  @apply flex flex-col min-h-screen w-full bg-[var(--bg)] text-[var(--text)];
+}
+
+.container {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 flex-grow flex items-center justify-center;
+}
+
+.adminCard {
+  @apply border border-[var(--border)] rounded-[24px] p-8 sm:p-10 bg-[var(--bg)] shadow-sm w-full max-w-3xl text-left flex flex-col gap-6;
+}
+
+.header {
+  @apply border-b border-[var(--border)] pb-4 text-left flex flex-col gap-1.5;
+}
+
+.adminTag {
+  @apply text-[9.5px] font-extrabold uppercase tracking-widest text-[var(--accent)] bg-[var(--accent-bg)] border border-[var(--accent-border)] px-2.5 py-0.5 rounded-full w-fit;
+}
+
+.title {
+  @apply text-2xl font-light text-[var(--text-h)] m-0;
+  font-family: var(--heading);
+}
+
+.subtitle {
+  @apply text-xs text-[var(--text)] opacity-75 m-0;
+}
+
+.alert {
+  @apply p-4 rounded-xl text-xs font-semibold border;
+}
+
+.alertSuccess {
+  @apply bg-emerald-50 text-emerald-800 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-300 dark:border-emerald-900/30;
+}
+
+.alertError {
+  @apply bg-rose-50 text-rose-800 border-rose-100 dark:bg-rose-950/20 dark:text-rose-300 dark:border-rose-900/30;
+}
+
+.form {
+  @apply flex flex-col gap-5;
+}
+
+.row {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+}
+
+.inputGroup {
+  @apply flex flex-col gap-1.5 text-left;
+}
+
+.label {
+  @apply text-[10px] font-bold uppercase tracking-wider text-[var(--text-h)];
+}
+
+.input, .textarea {
+  @apply w-full px-4 py-2.5 rounded-xl border bg-transparent text-sm text-[var(--text)] border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all;
+}
+
+.fileInput {
+  @apply text-xs text-[var(--text)] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[var(--code-bg)] file:text-[var(--text-h)] hover:file:opacity-90 file:cursor-pointer cursor-pointer;
+}
+
+.helperText {
+  @apply text-[10px] text-[var(--text)] opacity-60 leading-normal;
+}
+
+.uploadBlock {
+  @apply p-5 border border-dashed border-[var(--border)] rounded-2xl flex flex-col gap-4 bg-[var(--code-bg)]/20;
+}
+
+.submitBtn {
+  @apply mt-2 w-full py-4 px-6 border border-transparent rounded-full text-xs font-bold uppercase tracking-wider bg-[var(--text-h)] text-[var(--bg)] hover:opacity-90 active:scale-98 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none;
+}

@@ -1,11 +1,11 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import FilterSidebar from "../../components/FilterSidebar";
 import ProductCard from "../../components/ProductCard";
 import styles from "./index.module.css";
-import { TRENDING_PRODUCTS, GRID_PRODUCTS, CATEGORIES } from "../../data/mockdata/products";
+import { CATEGORIES, type Product } from "../../data/mockdata/products";
 import { useCart } from "../../context/CartContext";
 
 const ProductsPage: React.FC = () => {
@@ -39,69 +39,45 @@ const ProductsPage: React.FC = () => {
     }
   }, [urlCategory]);
 
-  // Merge trending and grid products and eliminate duplicates
-  const allProducts = useMemo(() => {
-    const combined = [...TRENDING_PRODUCTS, ...GRID_PRODUCTS];
-    const uniqueIds = new Set<string>();
-    return combined.filter((prod) => {
-      if (uniqueIds.has(prod.id)) return false;
-      uniqueIds.add(prod.id);
-      return true;
-    });
-  }, []);
+  const [processedProducts, setProcessedProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Filter and sort items
-  const processedProducts = useMemo(() => {
-    let result = [...allProducts];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const params = new URLSearchParams();
+        
+        if (searchQuery) params.append("search", searchQuery);
+        if (selectedCategories.length > 0) params.append("category", selectedCategories.join(","));
+        params.append("minPrice", priceRange[0].toString());
+        params.append("maxPrice", priceRange[1].toString());
+        if (minRating > 0) params.append("minRating", minRating.toString());
+        if (selectedShapes.length > 0) params.append("shapes", selectedShapes.join(","));
+        if (selectedBadges.length > 0) params.append("badges", selectedBadges.join(","));
+        params.append("sortBy", sortBy);
 
-    // Search filter
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          (p.description && p.description.toLowerCase().includes(q))
-      );
-    }
+        const res = await fetch(`${API_URL}/api/products?${params.toString()}`);
+        const data = await res.json();
+        
+        if (data.success) {
+          // Adapt MongoDB _id key to client id parameter
+          const mapped = data.data.map((p: any) => ({
+            ...p,
+            id: p._id,
+          }));
+          setProcessedProducts(mapped);
+        }
+      } catch (err) {
+        console.error("Products Fetch Error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    // Categories filter (multi-select)
-    if (selectedCategories.length > 0) {
-      result = result.filter((p) => selectedCategories.includes(p.category));
-    }
-
-    // Price range filter
-    result = result.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
-
-    // Rating filter
-    if (minRating > 0) {
-      result = result.filter((p) => p.rating >= minRating);
-    }
-
-    // Shapes filter
-    if (selectedShapes.length > 0) {
-      result = result.filter((p) => p.shapeType && selectedShapes.includes(p.shapeType));
-    }
-
-    // Badges filter
-    if (selectedBadges.length > 0) {
-      result = result.filter((p) => p.badge && selectedBadges.includes(p.badge));
-    }
-
-    // Sorting logic
-    if (sortBy === "price-low") {
-      result.sort((a, b) => a.price - b.price);
-    } else if (sortBy === "price-high") {
-      result.sort((a, b) => b.price - a.price);
-    } else if (sortBy === "name-asc") {
-      result.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortBy === "name-desc") {
-      result.sort((a, b) => b.name.localeCompare(a.name));
-    }
-
-    return result;
+    fetchProducts();
   }, [
-    allProducts,
     searchQuery,
     selectedCategories,
     priceRange,
@@ -269,7 +245,11 @@ const ProductsPage: React.FC = () => {
             </div>
 
             {/* Catalog Grid */}
-            {processedProducts.length === 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center items-center py-32 w-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--text-h)]"></div>
+              </div>
+            ) : processedProducts.length === 0 ? (
               <div className={styles.emptyState}>
                 <svg className="w-12 h-12 mx-auto text-[var(--text)] opacity-40 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
