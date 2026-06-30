@@ -22,10 +22,86 @@ interface Order {
 }
 
 const ProfilePage: React.FC = () => {
-  const { user, logout, isLoading: authLoading } = useAuth();
+  const { user, logout, addAddress, updateAddress, deleteAddress, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"orders" | "addresses" | "preferences" | "logout">("orders");
   const [orders, setOrders] = useState<Order[]>([]);
+
+  // Address edit/add state
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<any>(null);
+  const [addressForm, setAddressForm] = useState({
+    tag: "Default Shipping",
+    name: "",
+    addressLine: "",
+    city: "",
+    phone: "",
+  });
+  const [addressError, setAddressError] = useState("");
+  const [isAddressSubmitting, setIsAddressSubmitting] = useState(false);
+
+  const handleOpenAddAddress = () => {
+    setEditingAddress(null);
+    setAddressForm({
+      tag: "Default Shipping",
+      name: user?.name || "",
+      addressLine: "",
+      city: "",
+      phone: "",
+    });
+    setAddressError("");
+    setShowAddressForm(true);
+  };
+
+  const handleOpenEditAddress = (addr: any) => {
+    setEditingAddress(addr);
+    setAddressForm({
+      tag: addr.tag,
+      name: addr.name,
+      addressLine: addr.addressLine,
+      city: addr.city,
+      phone: addr.phone,
+    });
+    setAddressError("");
+    setShowAddressForm(true);
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this address?")) {
+      await deleteAddress(id);
+    }
+  };
+
+  const handleAddressSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { name, addressLine, city, phone } = addressForm;
+    if (!name.trim() || !addressLine.trim() || !city.trim() || !phone.trim()) {
+      setAddressError("Please fill out all fields.");
+      return;
+    }
+
+    setIsAddressSubmitting(true);
+    setAddressError("");
+
+    try {
+      let res;
+      if (editingAddress) {
+        res = await updateAddress(editingAddress._id, addressForm);
+      } else {
+        res = await addAddress(addressForm);
+      }
+
+      if (res.success) {
+        setShowAddressForm(false);
+      } else {
+        setAddressError(res.message || "Failed to save address.");
+      }
+    } catch (err) {
+      setAddressError("An error occurred while saving the address.");
+    } finally {
+      setIsAddressSubmitting(false);
+    }
+  };
 
   // Redirect to login if user is not authenticated
   useEffect(() => {
@@ -108,13 +184,14 @@ const ProfilePage: React.FC = () => {
             <div className={styles.profileLayout}>
               {/* Profile Header Dashboard */}
               <section className={styles.profileHeader}>
-                <div className={styles.avatarWrapper}>
-                  <img
-                    src={user.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400"}
-                    alt={user.name}
-                    className={styles.avatar}
-                  />
-                </div>
+                 <div className={styles.avatarWrapper}>
+                   <img
+                     src={user.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400"}
+                     alt={user.name}
+                     className={styles.avatar}
+                     referrerPolicy="no-referrer"
+                   />
+                 </div>
                 <div className={styles.profileMeta}>
                   <div className={styles.nameRow}>
                     <h1 className={styles.userName}>{user.name}</h1>
@@ -233,28 +310,48 @@ const ProfilePage: React.FC = () => {
                     {/* Shipping Addresses Tab */}
                     {activeTab === "addresses" && (
                       <div className={styles.addressesTab}>
-                        <div className={styles.addressGrid}>
-                          <div className={`${styles.addressCard} ${styles.defaultAddress}`}>
-                            <div className={styles.addressCardHeader}>
-                              <span className={styles.addressTag}>Default Shipping</span>
-                            </div>
-                            <h4 className={styles.addressName}>{user.name}</h4>
-                            <p className={styles.addressLine}>House 45, Road 11, Banani</p>
-                            <p className={styles.addressCity}>Dhaka 1213, Bangladesh</p>
-                            <p className={styles.addressPhone}>Phone: +880 1712 345678</p>
+                        {(!user.addresses || user.addresses.length === 0) ? (
+                          <div className={styles.noAddressText}>
+                            No shipping addresses saved yet.
                           </div>
-
-                          <div className={styles.addressCard}>
-                            <div className={styles.addressCardHeader}>
-                              <span className={styles.addressTag}>Office Billing</span>
-                            </div>
-                            <h4 className={styles.addressName}>Vance Studios</h4>
-                            <p className={styles.addressLine}>Flat 4B, Gulshan Tower, Gulshan 2</p>
-                            <p className={styles.addressCity}>Dhaka 1212, Bangladesh</p>
-                            <p className={styles.addressPhone}>Phone: +880 1819 876543</p>
+                        ) : (
+                          <div className={styles.addressGrid}>
+                            {user.addresses.map((addr: any, idx: number) => (
+                              <div key={addr._id || idx} className={`${styles.addressCard} ${idx === 0 ? styles.defaultAddress : ""}`}>
+                                <div className={styles.addressCardHeader}>
+                                  <span className={styles.addressTag}>{addr.tag}</span>
+                                  <div className={styles.addressActions}>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenEditAddress(addr)}
+                                      className={styles.editBtn}
+                                      title="Edit Address"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                      </svg>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteAddress(addr._id!)}
+                                      className={styles.deleteBtn}
+                                      title="Delete Address"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </div>
+                                <h4 className={styles.addressName}>{addr.name}</h4>
+                                <p className={styles.addressLine}>{addr.addressLine}</p>
+                                <p className={styles.addressCity}>{addr.city}</p>
+                                <p className={styles.addressPhone}>Phone: {addr.phone}</p>
+                              </div>
+                            ))}
                           </div>
-                        </div>
-                        <button type="button" className={styles.addAddressBtn}>
+                        )}
+                        <button type="button" onClick={handleOpenAddAddress} className={styles.addAddressBtn}>
                           + Add New Address
                         </button>
                       </div>
@@ -295,6 +392,104 @@ const ProfilePage: React.FC = () => {
           )
         )}
       </main>
+
+      {/* Address Edit/Add Modal */}
+      {showAddressForm && (
+        <div className={styles.overlay}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>
+                {editingAddress ? "Edit Shipping Address" : "Add New Shipping Address"}
+              </h2>
+            </div>
+
+            <form onSubmit={handleAddressSubmit} className={styles.form}>
+              {addressError && <div className={styles.errorText}>{addressError}</div>}
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Address Label</label>
+                <select
+                  name="tag"
+                  value={addressForm.tag}
+                  onChange={(e) => setAddressForm({ ...addressForm, tag: e.target.value })}
+                  className={styles.input}
+                >
+                  <option value="Default Shipping">Default Shipping</option>
+                  <option value="Home Shipping">Home Shipping</option>
+                  <option value="Office Billing">Office Billing</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Recipient Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Vance Studios"
+                  value={addressForm.name}
+                  onChange={(e) => setAddressForm({ ...addressForm, name: e.target.value })}
+                  className={styles.input}
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Address Line</label>
+                <input
+                  type="text"
+                  placeholder="e.g. House 45, Road 11, Banani"
+                  value={addressForm.addressLine}
+                  onChange={(e) => setAddressForm({ ...addressForm, addressLine: e.target.value })}
+                  className={styles.input}
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>City, Country</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Dhaka 1213, Bangladesh"
+                  value={addressForm.city}
+                  onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                  className={styles.input}
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Phone Number</label>
+                <input
+                  type="text"
+                  placeholder="e.g. +880 1712 345678"
+                  value={addressForm.phone}
+                  onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
+                  className={styles.input}
+                  required
+                />
+              </div>
+
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  onClick={() => setShowAddressForm(false)}
+                  className={styles.skipBtn}
+                  disabled={isAddressSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={styles.submitBtn}
+                  disabled={isAddressSubmitting}
+                >
+                  {isAddressSubmitting ? "Saving..." : "Save Address"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

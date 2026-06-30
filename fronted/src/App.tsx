@@ -11,6 +11,7 @@ import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
 import AdminPage from "./pages/AdminPage";
 import AiBudgetShopper from "./components/AiBudgetShopper";
+import AddressPromptModal from "./components/AddressPromptModal";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/cart" element={<CartPage />} />
             </Routes>
             <AiBudgetShopper />
+            <AddressPromptModal />
           </BrowserRouter>
         </CartProvider>
       </AuthProvider>

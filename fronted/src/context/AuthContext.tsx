@@ -1,5 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
+export interface Address {
+  _id?: string;
+  tag: string;
+  name: string;
+  addressLine: string;
+  city: string;
+  phone: string;
+}
+
 interface UserProfile {
   _id: string;
   name: string;
@@ -7,6 +16,7 @@ interface UserProfile {
   avatar: string;
   wishlist: string[];
   cart: Array<{ product: string; quantity: number }>;
+  addresses: Address[];
 }
 
 interface AuthContextProps {
@@ -17,6 +27,9 @@ interface AuthContextProps {
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   loginWithGoogle: (credential: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
+  addAddress: (address: Omit<Address, "_id">) => Promise<{ success: boolean; message?: string }>;
+  updateAddress: (id: string, address: Partial<Address>) => Promise<{ success: boolean; message?: string }>;
+  deleteAddress: (id: string) => Promise<{ success: boolean; message?: string }>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -82,8 +95,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: data.data.name,
           email: data.data.email,
           avatar: data.data.avatar,
-          wishlist: [],
-          cart: [],
+          wishlist: data.data.wishlist || [],
+          cart: data.data.cart || [],
+          addresses: data.data.addresses || [],
         });
         return { success: true };
       } else {
@@ -113,8 +127,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: data.data.name,
           email: data.data.email,
           avatar: data.data.avatar,
-          wishlist: [],
-          cart: [],
+          wishlist: data.data.wishlist || [],
+          cart: data.data.cart || [],
+          addresses: data.data.addresses || [],
         });
         return { success: true };
       } else {
@@ -144,8 +159,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: data.data.name,
           email: data.data.email,
           avatar: data.data.avatar,
-          wishlist: [],
-          cart: [],
+          wishlist: data.data.wishlist || [],
+          cart: data.data.cart || [],
+          addresses: data.data.addresses || [],
         });
         return { success: true };
       } else {
@@ -162,6 +178,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
+  const addAddress = async (addressData: Omit<Address, "_id">) => {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/addresses`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(addressData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (user) {
+          setUser({ ...user, addresses: data.data });
+        }
+        return { success: true };
+      } else {
+        return { success: false, message: data.message || "Failed to add address" };
+      }
+    } catch (error) {
+      return { success: false, message: "Server connection failed" };
+    }
+  };
+
+  const updateAddress = async (id: string, addressData: Partial<Address>) => {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/addresses/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(addressData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (user) {
+          setUser({ ...user, addresses: data.data });
+        }
+        return { success: true };
+      } else {
+        return { success: false, message: data.message || "Failed to update address" };
+      }
+    } catch (error) {
+      return { success: false, message: "Server connection failed" };
+    }
+  };
+
+  const deleteAddress = async (id: string) => {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/addresses/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (user) {
+          setUser({ ...user, addresses: data.data });
+        }
+        return { success: true };
+      } else {
+        return { success: false, message: data.message || "Failed to delete address" };
+      }
+    } catch (error) {
+      return { success: false, message: "Server connection failed" };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -172,6 +258,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         loginWithGoogle,
         logout,
+        addAddress,
+        updateAddress,
+        deleteAddress,
       }}
     >
       {children}

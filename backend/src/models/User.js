@@ -15,6 +15,30 @@ const cartItemSchema = new mongoose.Schema({
   },
 });
 
+const addressSchema = new mongoose.Schema({
+  tag: {
+    type: String,
+    required: true,
+    default: "Default Shipping",
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  addressLine: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  phone: {
+    type: String,
+    required: true,
+  },
+});
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -51,6 +75,7 @@ const userSchema = new mongoose.Schema(
       },
     ],
     cart: [cartItemSchema],
+    addresses: [addressSchema],
   },
   {
     timestamps: true,

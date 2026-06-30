@@ -39,6 +39,9 @@ export const registerUser = async (req, res) => {
           name: user.name,
           email: user.email,
           avatar: user.avatar,
+          wishlist: user.wishlist || [],
+          cart: user.cart || [],
+          addresses: user.addresses || [],
           token: generateToken(user._id),
         },
       });
@@ -67,6 +70,9 @@ export const loginUser = async (req, res) => {
           name: user.name,
           email: user.email,
           avatar: user.avatar,
+          wishlist: user.wishlist || [],
+          cart: user.cart || [],
+          addresses: user.addresses || [],
           token: generateToken(user._id),
         },
       });
@@ -108,13 +114,13 @@ export const googleLogin = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (user) {
-      // Update googleId and avatar if not present
+      // Update googleId and avatar if changed or not present
       let updated = false;
       if (!user.googleId) {
         user.googleId = googleId;
         updated = true;
       }
-      if (!user.avatar && avatar) {
+      if (avatar && user.avatar !== avatar) {
         user.avatar = avatar;
         updated = true;
       }
@@ -138,6 +144,9 @@ export const googleLogin = async (req, res) => {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
+        wishlist: user.wishlist || [],
+        cart: user.cart || [],
+        addresses: user.addresses || [],
         token: generateToken(user._id),
       },
     });
@@ -162,13 +171,96 @@ export const getUserProfile = async (req, res) => {
           name: user.name,
           email: user.email,
           avatar: user.avatar,
-          wishlist: user.wishlist,
-          cart: user.cart,
+          wishlist: user.wishlist || [],
+          cart: user.cart || [],
+          addresses: user.addresses || [],
         },
       });
     } else {
       res.status(404).json({ success: false, message: "User profile context not found." });
     }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Add user address
+// @route   POST /api/auth/addresses
+// @access  Private
+export const addUserAddress = async (req, res) => {
+  const { tag, name, addressLine, city, phone } = req.body;
+
+  if (!name || !addressLine || !city || !phone) {
+    return res.status(400).json({ success: false, message: "Please fill all address fields" });
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.addresses.push({
+      tag: tag || "Default Shipping",
+      name,
+      addressLine,
+      city,
+      phone,
+    });
+
+    await user.save();
+    res.status(201).json({ success: true, data: user.addresses });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Update user address
+// @route   PUT /api/auth/addresses/:id
+// @access  Private
+export const updateUserAddress = async (req, res) => {
+  const { tag, name, addressLine, city, phone } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const address = user.addresses.id(req.params.id);
+    if (!address) {
+      return res.status(404).json({ success: false, message: "Address not found" });
+    }
+
+    if (tag !== undefined) address.tag = tag;
+    if (name !== undefined) address.name = name;
+    if (addressLine !== undefined) address.addressLine = addressLine;
+    if (city !== undefined) address.city = city;
+    if (phone !== undefined) address.phone = phone;
+
+    await user.save();
+    res.json({ success: true, data: user.addresses });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Delete user address
+// @route   DELETE /api/auth/addresses/:id
+// @access  Private
+export const deleteUserAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.addresses = user.addresses.filter(
+      (addr) => addr._id.toString() !== req.params.id
+    );
+
+    await user.save();
+    res.json({ success: true, data: user.addresses });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

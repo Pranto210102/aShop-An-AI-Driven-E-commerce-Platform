@@ -1,0 +1,65 @@
+@reference "tailwindcss";
+
+.overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 transition-all duration-300;
+}
+
+.modal {
+  @apply max-w-md w-full bg-[var(--bg)] border border-[var(--border)] rounded-3xl p-8 shadow-2xl relative flex flex-col gap-4 text-left;
+  animation: modalEnter 0.3s ease-out;
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modalHeader {
+  @apply flex flex-col gap-1;
+}
+
+.title {
+  @apply text-xl font-semibold text-[var(--text-h)] m-0;
+}
+
+.subtitle {
+  @apply text-xs text-[var(--text)] opacity-75 m-0 leading-relaxed;
+}
+
+.form {
+  @apply flex flex-col gap-4;
+}
+
+.inputGroup {
+  @apply flex flex-col gap-1.5;
+}
+
+.label {
+  @apply text-[10px] font-bold uppercase tracking-wider text-[var(--text-h)];
+}
+
+.input {
+  @apply px-4 py-2.5 rounded-xl border border-[var(--border)] bg-transparent text-xs text-[var(--text-h)] focus:outline-none focus:border-[var(--text-h)] dark:focus:border-[var(--accent)] transition-colors w-full;
+}
+
+.actions {
+  @apply flex items-center gap-3 mt-2;
+}
+
+.submitBtn {
+  @apply flex-grow py-3 rounded-full bg-[var(--text-h)] text-[var(--bg)] text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer text-center border-0 outline-none;
+}
+
+.skipBtn {
+  @apply py-3 px-6 rounded-full border border-[var(--border)] text-[var(--text)] text-xs font-bold uppercase tracking-wider hover:bg-[var(--code-bg)] hover:text-[var(--text-h)] transition-colors cursor-pointer text-center bg-transparent;
+}
+
+.errorText {
+  @apply text-xs text-rose-500 font-medium;
+}
