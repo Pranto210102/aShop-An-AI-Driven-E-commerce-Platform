@@ -45,60 +45,26 @@
 }
 
 .formSubtitle {
-  @apply text-xs text-[var(--text)] opacity-75 m-0;
+  @apply text-xs text-[var(--text)] opacity-75 m-0 leading-relaxed;
 }
 
 .errorAlert {
   @apply p-4 rounded-xl bg-rose-50 text-rose-800 border border-rose-100 text-xs font-semibold dark:bg-rose-950/20 dark:text-rose-300 dark:border-rose-900/30;
 }
 
-.form {
-  @apply flex flex-col gap-4;
+.loaderContainer {
+  @apply flex flex-col gap-2 py-3 text-center;
 }
 
-.inputGroup {
-  @apply flex flex-col gap-1.5;
-}
-
-.label {
-  @apply text-[10px] font-bold uppercase tracking-wider text-[var(--text-h)];
-}
-
-.input {
-  @apply w-full px-4 py-2.5 rounded-xl border bg-transparent text-sm text-[var(--text)] border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all;
-}
-
-.submitBtn {
-  @apply mt-2 w-full py-3.5 px-6 border border-transparent rounded-full text-xs font-bold uppercase tracking-wider bg-[var(--text-h)] text-[var(--bg)] hover:opacity-90 active:scale-98 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none;
-}
-
-/* Divider styling */
-.divider {
-  @apply flex items-center gap-4 py-2;
-}
-
-.dividerLine {
-  @apply flex-grow h-px bg-[var(--border)];
-}
-
-.dividerText {
-  @apply text-[10px] font-bold uppercase tracking-widest text-[var(--text)] opacity-60;
+.loaderText {
+  @apply text-[10px] uppercase font-bold tracking-wider text-[var(--text)] opacity-60 m-0;
 }
 
 /* Google OAuth placement */
 .googleContainer {
-  @apply flex justify-center w-full;
+  @apply flex justify-center w-full mt-2;
 }
 
 .googleBtn {
   @apply flex justify-center w-full max-w-[320px] h-[40px] overflow-hidden rounded-full;
-}
-
-/* Toggle Link Styling */
-.toggleFooter {
-  @apply text-center text-xs text-[var(--text)] mt-2;
-}
-
-.toggleBtn {
-  @apply font-bold text-[var(--text-h)] hover:text-[var(--accent)] transition-colors cursor-pointer bg-transparent border-0 p-0 outline-none;
 }
