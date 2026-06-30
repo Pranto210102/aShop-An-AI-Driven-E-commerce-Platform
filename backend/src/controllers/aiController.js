@@ -64,9 +64,10 @@ ${category ? `PREFERRED CATEGORY: ${category}` : ""}
 INSTRUCTIONS:
 1. Analyze the user's intent and find the most relevant products from the catalog.
 2. If a budget is provided, only recommend products that fit within the total budget.
-3. Try to maximize value — suggest the best combination of products within budget.
-4. Provide a friendly, helpful response explaining your recommendations.
-5. Return your response as valid JSON in this exact format:
+3. If the user's budget limit is too low (e.g. lower than the price of any single product in the catalog), or if no items or combinations of items can fit within the budget limit, you MUST set "recommendedProductIds" to an empty array [] and set "totalCost" to 0. In this case, write a polite reply explanation stating that no items were found within their budget (noting that our cheapest products start at 320 Tk).
+4. Try to maximize value — suggest the best combination of products within budget.
+5. Provide a friendly, helpful response explaining your recommendations.
+6. Return your response as valid JSON in this exact format:
 
 {
   "reply": "Your friendly explanation and reasoning to the user (2-3 sentences)",
@@ -88,16 +89,59 @@ Only recommend products that exist in the catalog. Return valid JSON only, no ex
 
     // Map recommended IDs back to full product objects
     const recommendedIds = aiResponse.recommendedProductIds || [];
-    const recommendedProducts = products.filter((p) =>
+    let recommendedProducts = products.filter((p) =>
       recommendedIds.includes(p._id.toString())
     );
+
+    let finalReply = aiResponse.reply || "Here are my recommendations!";
+    let finalTotalCost = aiResponse.totalCost || 0;
+
+    // Strict programmatic budget validation
+    if (budget) {
+      const budgetLimit = Number(budget);
+      
+      // Calculate actual total cost of recommended items
+      const actualTotal = recommendedProducts.reduce((sum, p) => sum + p.price, 0);
+      
+      if (actualTotal > budgetLimit) {
+        // If the AI exceeded the budget, filter down the list to items that actually fit
+        let currentSum = 0;
+        const validProducts = [];
+        
+        // Sort by price ascending to fit as many as possible within the budget limit
+        const sortedProducts = [...recommendedProducts].sort((a, b) => a.price - b.price);
+        for (const p of sortedProducts) {
+          if (currentSum + p.price <= budgetLimit) {
+            validProducts.push(p);
+            currentSum += p.price;
+          }
+        }
+        
+        recommendedProducts = validProducts;
+        finalTotalCost = currentSum;
+        
+        if (recommendedProducts.length === 0) {
+          finalReply = `I couldn't find any products in our catalog that fit within your budget of ${budget} Tk. The lowest priced item in our catalog starts at 320 Tk. Please try increasing your budget.`;
+        } else {
+          finalReply = `To fit within your budget limit of ${budget} Tk, I recommend the following items: ${recommendedProducts.map(p => p.name).join(", ")}.`;
+        }
+      } else {
+        // Double check: if AI claimed 0 recommendations but we actually have items, or if it recommended nothing
+        if (recommendedProducts.length === 0) {
+          const hasAnyFittingProduct = products.some(p => p.price <= budgetLimit);
+          if (!hasAnyFittingProduct) {
+            finalReply = `I couldn't find any products in our catalog that fit within your budget of ${budget} Tk. The lowest priced item in our catalog starts at 320 Tk. Please try increasing your budget.`;
+          }
+        }
+      }
+    }
 
     res.json({
       success: true,
       data: {
-        reply: aiResponse.reply || "Here are my recommendations!",
+        reply: finalReply,
         recommendations: recommendedProducts,
-        totalCost: aiResponse.totalCost || 0,
+        totalCost: finalTotalCost,
         reasoning: aiResponse.reasoning || "",
       },
     });
