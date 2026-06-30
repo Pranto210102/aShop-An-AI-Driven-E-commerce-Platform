@@ -46,7 +46,7 @@ const ProductsPage: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const API_URL = import.meta.env.VITE_API_URL || "https://ashop-backend-4qwa.onrender.com";
         const params = new URLSearchParams();
         
         if (searchQuery) params.append("search", searchQuery);

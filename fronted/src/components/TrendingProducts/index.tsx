@@ -18,7 +18,7 @@ const TrendingProducts: React.FC = () => {
     const fetchTrendingProducts = async () => {
       try {
         setIsLoading(true);
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const API_URL = import.meta.env.VITE_API_URL || "https://ashop-backend-4qwa.onrender.com";
         const res = await fetch(`${API_URL}/api/products?trending=true`);
         const data = await res.json();
         

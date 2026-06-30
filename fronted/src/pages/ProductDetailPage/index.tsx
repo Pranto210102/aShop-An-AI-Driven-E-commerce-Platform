@@ -19,7 +19,7 @@ const ProductDetailPage: React.FC = () => {
       if (!productId) return;
       try {
         setIsLoading(true);
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const API_URL = import.meta.env.VITE_API_URL || "https://ashop-backend-4qwa.onrender.com";
         const res = await fetch(`${API_URL}/api/products/${productId}`);
         const data = await res.json();
         if (data.success) {

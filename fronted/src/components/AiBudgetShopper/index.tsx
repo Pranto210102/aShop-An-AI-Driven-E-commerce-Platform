@@ -3,7 +3,7 @@ import styles from "./index.module.css";
 import type { Product } from "../../data/mockdata/products";
 import { useCart } from "../../context/CartContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "https://ashop-backend-4qwa.onrender.com";
 
 const AiBudgetShopper: React.FC = () => {
   const { addToCart, showToast } = useCart();

@@ -18,7 +18,12 @@ const Footer: React.FC = () => {
       <div className={styles.container}>
         {/* Brand */}
         <div className={styles.brandCol}>
-          <div className={styles.logoText}>
+          <div className={`${styles.logoText} flex items-center gap-2`}>
+            <svg className="w-5 h-5 text-[var(--text-h)] dark:text-[var(--accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
             aShop<span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] inline-block ml-1" />
           </div>
           <p className={styles.brandDesc}>

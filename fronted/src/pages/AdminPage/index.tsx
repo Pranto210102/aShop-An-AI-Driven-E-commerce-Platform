@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "./index.module.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "https://ashop-backend-4qwa.onrender.com";
 
 const AdminPage: React.FC = () => {
   const [name, setName] = useState("");
