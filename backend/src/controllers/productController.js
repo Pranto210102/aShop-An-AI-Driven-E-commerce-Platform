@@ -14,6 +14,7 @@ export const getProducts = async (req, res) => {
       shapes,
       badges,
       sortBy,
+      trending,
     } = req.query;
 
     // Build query object
@@ -57,6 +58,12 @@ export const getProducts = async (req, res) => {
       query.badge = { $in: badgesArray };
     }
 
+    // 7. Trending Products Filter
+    if (trending === "true") {
+      query.trendingScore = { $gt: 0 };
+      query.trendingUntil = { $gt: new Date() };
+    }
+
     // Initialize sort option
     let sortOption = {};
     if (sortBy === "price-asc" || sortBy === "price-low") {
@@ -69,13 +76,21 @@ export const getProducts = async (req, res) => {
       sortOption.name = -1;
     } else if (sortBy === "rating") {
       sortOption.rating = -1;
+    } else if (trending === "true") {
+      // When filtering by trending, sort by score by default
+      sortOption.trendingScore = -1;
     } else {
       // Default: featured/newest
       sortOption.createdAt = -1;
     }
 
     // Execute query
-    const products = await Product.find(query).sort(sortOption);
+    let products = await Product.find(query).sort(sortOption);
+
+    // Fallback: If requesting trending products and none match the score, return the top 8 highest-rated products
+    if (trending === "true" && products.length === 0) {
+      products = await Product.find({}).sort({ rating: -1, reviewsCount: -1 }).limit(8);
+    }
 
     res.json({
       success: true,

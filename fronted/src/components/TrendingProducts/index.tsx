@@ -1,15 +1,52 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import styles from "./index.module.css";
-import { TRENDING_PRODUCTS } from "../../data/mockdata/products";
+import type { Product } from "../../data/mockdata/products";
 import { useCart } from "../../context/CartContext";
 
 const TrendingProducts: React.FC = () => {
   const { addToCart, toggleWishlist, wishlist } = useCart();
+  const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Fetch trending products from backend
+  useEffect(() => {
+    const fetchTrendingProducts = async () => {
+      try {
+        setIsLoading(true);
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const res = await fetch(`${API_URL}/api/products?trending=true`);
+        const data = await res.json();
+        
+        if (data.success) {
+          // Adapt MongoDB _id key to client id parameter
+          const mapped = data.data.map((p: any) => ({
+            id: p._id,
+            name: p.name,
+            price: p.price,
+            category: p.category,
+            imageUrl: p.imageUrl,
+            rating: p.rating || 0,
+            reviewsCount: p.reviewsCount || 0,
+            badge: p.badge || "",
+            description: p.description || "",
+            shapeType: p.shapeType || undefined,
+          }));
+          setTrendingProducts(mapped);
+        }
+      } catch (err) {
+        console.error("Trending products fetch error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTrendingProducts();
+  }, []);
 
   // Responsive items calculation
   useEffect(() => {
@@ -18,8 +55,10 @@ const TrendingProducts: React.FC = () => {
         setItemsPerView(1); // Mobile
       } else if (window.innerWidth < 1024) {
         setItemsPerView(2); // Tablet
-      } else {
+      } else if (window.innerWidth < 1400) {
         setItemsPerView(3); // Desktop
+      } else {
+        setItemsPerView(4); // Large/Full screen
       }
     };
     handleResize();
@@ -27,12 +66,12 @@ const TrendingProducts: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const totalItems = TRENDING_PRODUCTS.length;
-  const maxIndex = totalItems - itemsPerView;
+  const totalItems = trendingProducts.length;
+  const maxIndex = Math.max(0, totalItems - itemsPerView);
 
   // Auto-play timer
   useEffect(() => {
-    if (isPaused) {
+    if (isPaused || maxIndex === 0) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
@@ -54,6 +93,26 @@ const TrendingProducts: React.FC = () => {
     setActiveIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
   };
 
+  if (isLoading) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <div>
+            <h2 className={styles.title}>Trending Collection</h2>
+            <p className="text-xs text-[var(--text)] mt-1">Curating latest styles...</p>
+          </div>
+        </div>
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--text-h)]"></div>
+        </div>
+      </section>
+    );
+  }
+
+  if (totalItems === 0) {
+    return null; // hide section if no trending products are available
+  }
+
   return (
     <section
       className={styles.section}
@@ -71,26 +130,28 @@ const TrendingProducts: React.FC = () => {
           </p>
         </div>
         {/* Carousel controls */}
-        <div className={styles.controls}>
-          <button
-            onClick={handlePrev}
-            className={styles.controlBtn}
-            aria-label="Previous Products"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={handleNext}
-            className={styles.controlBtn}
-            aria-label="Next Products"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+        {maxIndex > 0 && (
+          <div className={styles.controls}>
+            <button
+              onClick={handlePrev}
+              className={styles.controlBtn}
+              aria-label="Previous Products"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={handleNext}
+              className={styles.controlBtn}
+              aria-label="Next Products"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       <div className={styles.carouselContainer}>
@@ -101,7 +162,7 @@ const TrendingProducts: React.FC = () => {
               transform: `translateX(-${activeIndex * (100 / itemsPerView)}%)`,
             }}
           >
-            {TRENDING_PRODUCTS.map((product) => {
+            {trendingProducts.map((product) => {
               const isWishlisted = wishlist.includes(product.id);
               return (
                 <div
@@ -179,16 +240,18 @@ const TrendingProducts: React.FC = () => {
         </div>
 
         {/* Navigation Dots */}
-        <div className={styles.dotsWrapper}>
-          {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveIndex(idx)}
-              className={`${styles.dot} ${activeIndex === idx ? styles.activeDot : ""}`}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
-        </div>
+        {maxIndex > 0 && (
+          <div className={styles.dotsWrapper}>
+            {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveIndex(idx)}
+                className={`${styles.dot} ${activeIndex === idx ? styles.activeDot : ""}`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

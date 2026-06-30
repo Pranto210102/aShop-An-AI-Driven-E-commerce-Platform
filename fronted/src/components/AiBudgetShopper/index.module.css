@@ -55,8 +55,17 @@
   @apply text-lg font-semibold text-[var(--text-h)] flex items-center gap-2;
 }
 
+.titleIcon {
+  @apply w-5 h-5 animate-pulse;
+  color: #9333ea;
+}
+
 .closeBtn {
   @apply p-2 rounded-full hover:bg-[var(--code-bg)] text-[var(--text)] hover:text-[var(--text-h)] transition-colors cursor-pointer;
+}
+
+.closeSvg {
+  @apply w-6 h-6;
 }
 
 /* Form Styles */
@@ -84,6 +93,10 @@
   @apply w-full py-3.5 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-xs uppercase tracking-wider hover:opacity-95 shadow-md transition-opacity cursor-pointer flex items-center justify-center gap-2;
 }
 
+.submitSpinner {
+  @apply w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin;
+}
+
 /* Loading state */
 .loadingArea {
   @apply flex flex-col items-center justify-center py-10 gap-3;
@@ -94,7 +107,32 @@
 }
 
 .loadingText {
-  @apply text-xs font-semibold text-purple-600 dark:text-purple-400 animate-pulse;
+  @apply text-xs font-semibold animate-pulse;
+  color: #9333ea;
+}
+
+/* Error card */
+.errorCard {
+  @apply flex items-start gap-2 p-4 mb-4 rounded-2xl border text-xs;
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+}
+
+.errorIcon {
+  @apply flex-shrink-0 text-sm;
+}
+
+/* AI Reply card */
+.aiReplyCard {
+  @apply flex items-start gap-2 p-4 mb-4 rounded-2xl border text-xs leading-relaxed;
+  background: rgba(147, 51, 234, 0.06);
+  border-color: rgba(147, 51, 234, 0.2);
+  color: var(--text-h);
+}
+
+.aiReplyIcon {
+  @apply flex-shrink-0 text-sm;
 }
 
 /* Results panel */
@@ -114,8 +152,20 @@
   @apply flex items-center justify-between border border-[var(--border)] rounded-xl p-2.5 bg-[var(--bg)] transition-colors hover:bg-[var(--code-bg)];
 }
 
+.recItemInner {
+  @apply flex items-center gap-3;
+}
+
 .itemThumbWrapper {
-  @apply flex-shrink-0 w-12 h-12 bg-[#f4f4f6] dark:bg-zinc-800 rounded-lg p-1 flex items-center justify-center overflow-hidden border border-[var(--border)];
+  @apply flex-shrink-0 w-12 h-12 rounded-lg p-1 flex items-center justify-center overflow-hidden border border-[var(--border)];
+  background: #f4f4f6;
+}
+
+:root[data-theme='dark'] .itemThumbWrapper,
+@media (prefers-color-scheme: dark) {
+  .itemThumbWrapper {
+    background: #27272a;
+  }
 }
 
 .itemThumb {
@@ -135,15 +185,27 @@
 }
 
 .summaryCard {
-  @apply bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/50 rounded-2xl p-4 mb-6 text-xs text-[var(--text)];
+  @apply rounded-2xl p-4 mb-6 text-xs text-[var(--text)];
+  background: rgba(147, 51, 234, 0.06);
+  border: 1px solid rgba(147, 51, 234, 0.15);
 }
 
 .summaryRow {
   @apply flex justify-between py-1;
 }
 
+.summaryValue {
+  @apply font-semibold;
+}
+
 .summaryTotalRow {
-  @apply flex justify-between py-1.5 border-t border-purple-200 dark:border-purple-900 font-semibold text-purple-900 dark:text-purple-300 text-sm mt-1;
+  @apply flex justify-between py-1.5 font-semibold text-sm mt-1;
+  border-top: 1px solid rgba(147, 51, 234, 0.2);
+  color: #7e22ce;
+}
+
+:root[data-theme='dark'] .summaryTotalRow {
+  color: #c084fc;
 }
 
 .addCartBtn {

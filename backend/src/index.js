@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.js";
+import aiRoutes from "./routes/ai.js";
+import { startAiCronJobs } from "./jobs/aiCronJobs.js";
 
 // Load environment variables
 dotenv.config();
@@ -20,6 +22,7 @@ app.use(express.json());
 // Routes Mounting
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Root Endpoint
 app.get("/", (req, res) => {
@@ -45,4 +48,7 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running in development mode on port ${PORT}`);
+
+  // Start AI scheduled cron jobs after server is ready
+  startAiCronJobs();
 });

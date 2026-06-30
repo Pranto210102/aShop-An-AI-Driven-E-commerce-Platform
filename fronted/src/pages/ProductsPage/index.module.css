@@ -10,7 +10,7 @@
 
 /* Page Header and Filtering Options */
 .pageHeader {
-  @apply flex flex-col md:flex-row md:items-center md:justify-between border-b border-[var(--border)] pb-6 mb-8 gap-4;
+  @apply flex flex-col md:flex-row md:items-center md:justify-between border-b border-[var(--border)] pb-4 mb-6 gap-4;
 }
 
 .titleArea {
@@ -35,7 +35,7 @@
 }
 
 .categoryPills {
-  @apply flex flex-wrap gap-2 mb-8;
+  @apply flex flex-wrap gap-2 mb-6;
 }
 
 .pill {
@@ -48,7 +48,7 @@
 
 /* Catalog Grid */
 .grid {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6;
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-y-6 gap-x-6;
 }
 
 /* Card Styling */
@@ -57,7 +57,7 @@
 }
 
 .imageWrapper {
-  @apply relative aspect-square w-full overflow-hidden bg-[#f4f4f6] dark:bg-zinc-800 transition-all duration-500 ease-out p-8 flex items-center justify-center rounded-[20px];
+  @apply relative aspect-square w-full overflow-hidden bg-[#f4f4f6] dark:bg-zinc-800 transition-all duration-500 ease-out p-4 sm:p-6 flex items-center justify-center rounded-[20px];
 }
 
 .image {

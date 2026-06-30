@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import styles from "./index.module.css";
-import { TRENDING_PRODUCTS, GRID_PRODUCTS } from "../../data/mockdata/products";
 import type { Product } from "../../data/mockdata/products";
 import { useCart } from "../../context/CartContext";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const AiBudgetShopper: React.FC = () => {
   const { addToCart, showToast } = useCart();
@@ -11,17 +12,8 @@ const AiBudgetShopper: React.FC = () => {
   const [intent, setIntent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<Product[] | null>(null);
-
-  // Combine products for scan catalog
-  const catalogProducts = useMemo(() => {
-    const combined = [...TRENDING_PRODUCTS, ...GRID_PRODUCTS];
-    const uniqueIds = new Set<string>();
-    return combined.filter((prod) => {
-      if (uniqueIds.has(prod.id)) return false;
-      uniqueIds.add(prod.id);
-      return true;
-    });
-  }, []);
+  const [aiReply, setAiReply] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,79 +26,59 @@ const AiBudgetShopper: React.FC = () => {
 
     setIsLoading(true);
     setRecommendations(null);
+    setAiReply(null);
+    setErrorMessage(null);
 
-    // Simulate backend API processing delay (Gemini analysis)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    /*
-     * -------------------------------------------------------------
-     * BACKEND GEMINI API PORTAL PLACEHOLDER
-     * -------------------------------------------------------------
-     * To connect to the real Gemini API in the future, you can replace the local
-     * optimization script below with a fetch call to your backend:
-     * 
-     * try {
-     *   const res = await fetch("/api/gemini/budget-planner", {
-     *     method: "POST",
-     *     headers: { "Content-Type": "application/json" },
-     *     body: JSON.stringify({ budget: budgetValue, intent: intent })
-     *   });
-     *   const data = await res.json();
-     *   setRecommendations(data.products);
-     * } catch (err) {
-     *   console.error(err);
-     * }
-     * -------------------------------------------------------------
-     */
-
-    // Client-side smart combination recommender
-    const keywords = intent
-      .toLowerCase()
-      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-      .split(/\s+/)
-      .filter((word) => word.length > 2); // Filter out short filler words
-
-    // Calculate relevance score for each product based on intent keywords
-    const scoredProducts = catalogProducts.map((product) => {
-      let score = 1; // Base score
-      
-      const searchString = `${product.name} ${product.category} ${product.description || ""}`.toLowerCase();
-      
-      keywords.forEach((keyword) => {
-        if (searchString.includes(keyword)) {
-          score += 10; // High relevance bump for matching keywords
-        }
+    try {
+      const res = await fetch(`${API_URL}/api/ai/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: intent,
+          budget: budgetValue,
+        }),
       });
 
-      return { product, score };
-    });
+      const data = await res.json();
 
-    // Sort by relevance score (highest first), then by price (cheapest first) to fit budget
-    scoredProducts.sort((a, b) => {
-      if (b.score !== a.score) {
-        return b.score - a.score;
+      if (data.success && data.data) {
+        // Map backend product format (_id) to frontend format (id)
+        const mappedProducts: Product[] = (data.data.recommendations || []).map(
+          (p: Record<string, unknown>) => ({
+            id: (p._id as string) || (p.id as string),
+            name: p.name as string,
+            price: p.price as number,
+            category: p.category as string,
+            imageUrl: p.imageUrl as string,
+            rating: p.rating as number,
+            reviewsCount: p.reviewsCount as number,
+            badge: (p.badge as string) || "",
+            description: (p.description as string) || "",
+            shapeType: (p.shapeType as Product["shapeType"]) || undefined,
+          })
+        );
+
+        setRecommendations(mappedProducts);
+        setAiReply(data.data.reply || null);
+      } else {
+        setErrorMessage(
+          data.message || "AI service is temporarily unavailable. Please try again."
+        );
+        setRecommendations([]);
       }
-      return a.product.price - b.product.price;
-    });
-
-    // Greedy knapsack optimization selection under budget
-    let currentTotal = 0;
-    const selected: Product[] = [];
-
-    for (const item of scoredProducts) {
-      if (currentTotal + item.product.price <= budgetValue) {
-        selected.push(item.product);
-        currentTotal += item.product.price;
-      }
+    } catch {
+      setErrorMessage(
+        "Could not connect to the AI service. Please ensure the backend server is running."
+      );
+      setRecommendations([]);
     }
 
-    setRecommendations(selected);
     setIsLoading(false);
   };
 
   const handleAddAllToCart = () => {
     if (!recommendations || recommendations.length === 0) return;
-    
+
     recommendations.forEach((product) => {
       addToCart(product);
     });
@@ -145,13 +117,13 @@ const AiBudgetShopper: React.FC = () => {
               {/* Drawer Header */}
               <div className={styles.header}>
                 <h2 className={styles.title}>
-                  <svg className="w-5 h-5 text-purple-600 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className={styles.titleIcon} viewBox="0 0 24 24" fill="currentColor">
                     <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z" />
                   </svg>
-                  Gemini Budget Assistant
+                  Groq Budget Assistant
                 </h2>
                 <button className={styles.closeBtn} onClick={() => setIsOpen(false)}>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={styles.closeSvg} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -186,7 +158,7 @@ const AiBudgetShopper: React.FC = () => {
                 <button type="submit" disabled={isLoading} className={styles.submitBtn}>
                   {isLoading ? (
                     <>
-                      <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                      <div className={styles.submitSpinner} />
                       <span>Thinking...</span>
                     </>
                   ) : (
@@ -199,25 +171,41 @@ const AiBudgetShopper: React.FC = () => {
               {isLoading && (
                 <div className={styles.loadingArea}>
                   <div className={styles.spinner} />
-                  <span className={styles.loadingText}>Gemini is optimizing combinations...</span>
+                  <span className={styles.loadingText}>Groq is optimizing combinations...</span>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {errorMessage && !isLoading && (
+                <div className={styles.errorCard}>
+                  <span className={styles.errorIcon}>⚠</span>
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              {/* AI Reply */}
+              {aiReply && !isLoading && (
+                <div className={styles.aiReplyCard}>
+                  <span className={styles.aiReplyIcon}>✨</span>
+                  <p>{aiReply}</p>
                 </div>
               )}
 
               {/* Recommendation Results */}
-              {recommendations && (
+              {recommendations && !isLoading && (
                 <div className={styles.resultsPanel}>
                   <h3 className={styles.resultsTitle}>Suggested Combinations</h3>
 
-                  {recommendations.length === 0 ? (
+                  {recommendations.length === 0 && !errorMessage ? (
                     <div className={styles.noResults}>
                       No products fit within your entered budget. Try increasing the amount or matching a different keyword.
                     </div>
-                  ) : (
+                  ) : recommendations.length > 0 ? (
                     <>
                       <div className={styles.recList}>
                         {recommendations.map((product) => (
                           <div key={product.id} className={styles.recItemCard}>
-                            <div className="flex items-center gap-3">
+                            <div className={styles.recItemInner}>
                               <div className={styles.itemThumbWrapper}>
                                 <img
                                   src={product.imageUrl}
@@ -238,11 +226,11 @@ const AiBudgetShopper: React.FC = () => {
                       <div className={styles.summaryCard}>
                         <div className={styles.summaryRow}>
                           <span>User Budget Limit</span>
-                          <span className="font-semibold">{budget} Tk</span>
+                          <span className={styles.summaryValue}>{budget} Tk</span>
                         </div>
                         <div className={styles.summaryRow}>
                           <span>Optimized Item Count</span>
-                          <span className="font-semibold">{recommendations.length} items</span>
+                          <span className={styles.summaryValue}>{recommendations.length} items</span>
                         </div>
                         <div className={styles.summaryTotalRow}>
                           <span>Recommended Total</span>
@@ -258,7 +246,7 @@ const AiBudgetShopper: React.FC = () => {
                         Add All items to Cart
                       </button>
                     </>
-                  )}
+                  ) : null}
                 </div>
               )}
             </div>

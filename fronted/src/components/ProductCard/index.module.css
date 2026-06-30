@@ -9,7 +9,7 @@
 }
 
 .imageWrapper {
-  @apply relative aspect-square w-full overflow-hidden bg-[#f4f4f6] dark:bg-zinc-800 transition-all duration-500 ease-out p-8 flex items-center justify-center rounded-[20px] shadow-xs group-hover:shadow-md;
+  @apply relative aspect-square w-full overflow-hidden bg-[#f4f4f6] dark:bg-zinc-800 transition-all duration-500 ease-out p-4 sm:p-6 flex items-center justify-center rounded-[20px] shadow-xs group-hover:shadow-md;
 }
 
 .image {
