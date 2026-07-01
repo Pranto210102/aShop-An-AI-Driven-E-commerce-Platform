@@ -5,7 +5,7 @@
 }
 
 .container {
-  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 flex-grow flex items-center justify-center;
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 flex-grow flex flex-col items-center justify-start gap-10;
 }
 
 .adminCard {
@@ -76,3 +76,118 @@
 .submitBtn {
   @apply mt-2 w-full py-4 px-6 border border-transparent rounded-full text-xs font-bold uppercase tracking-wider bg-[var(--text-h)] text-[var(--bg)] hover:opacity-90 active:scale-98 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none;
 }
+
+/* AI Suggestions Section Styles */
+
+.dashboardCard {
+  @apply border border-[var(--border)] rounded-[24px] p-8 sm:p-10 bg-[var(--bg)] shadow-sm w-full max-w-4xl text-left flex flex-col gap-6;
+}
+
+.tabHeader {
+  @apply flex border-b border-[var(--border)] pb-2 gap-6 w-full overflow-x-auto;
+}
+
+.tabBtn {
+  @apply text-xs font-bold uppercase tracking-wider text-[var(--text)] opacity-50 pb-2 border-b-2 border-transparent transition-all cursor-pointer whitespace-nowrap;
+}
+
+.tabBtnActive {
+  @apply opacity-100 text-[var(--text-h)] border-[var(--accent)];
+}
+
+.marketSummaryCard {
+  @apply p-5 rounded-2xl border border-[var(--border)] bg-[var(--code-bg)]/30 text-xs text-[var(--text)] leading-relaxed flex flex-col gap-3;
+}
+
+.insightsSection {
+  @apply flex flex-col gap-4;
+}
+
+.suggestionsGrid {
+  @apply flex flex-col gap-4;
+}
+
+.suggestionCard {
+  @apply border border-[var(--border)] rounded-2xl p-5 bg-[var(--bg)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-[var(--text-h)]/30 transition-all;
+}
+
+.suggestionInfo {
+  @apply flex flex-col gap-1.5 flex-grow max-w-xl;
+}
+
+.suggestionTitleRow {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+.productName {
+  @apply text-sm font-semibold text-[var(--text-h)];
+}
+
+.suggestionMeta {
+  @apply text-[10px] text-[var(--text)] opacity-65 flex gap-3 flex-wrap;
+}
+
+.suggestionReason {
+  @apply text-xs text-[var(--text)] leading-relaxed mt-1;
+}
+
+.badge {
+  @apply text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border;
+}
+
+.badgeHigh {
+  @apply text-rose-700 bg-rose-50 border-rose-200 dark:text-rose-300 dark:bg-rose-950/20 dark:border-rose-900/30;
+}
+
+.badgeMedium {
+  @apply text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-950/20 dark:border-amber-900/30;
+}
+
+.badgeLow {
+  @apply text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-300 dark:bg-blue-950/20 dark:border-blue-900/30;
+}
+
+.badgeAction {
+  @apply text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-950/20 dark:border-emerald-900/30;
+}
+
+.competitorBox {
+  @apply border border-[var(--border)] rounded-xl px-3 py-1.5 bg-[var(--code-bg)]/20 text-[10px] font-medium text-[var(--text)] flex flex-col gap-0.5;
+}
+
+.suggestionActions {
+  @apply flex gap-2 w-full sm:w-auto shrink-0 flex-wrap sm:flex-nowrap justify-end;
+}
+
+.actionBtn {
+  @apply py-2.5 px-4 rounded-full text-[10px] font-bold uppercase tracking-wider border border-[var(--border)] text-[var(--text-h)] bg-[var(--bg)] hover:bg-[var(--code-bg)] active:scale-98 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.primaryActionBtn {
+  @apply py-2.5 px-4 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[var(--text-h)] text-[var(--bg)] border border-transparent hover:opacity-90 active:scale-98 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.refreshRow {
+  @apply flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-t border-[var(--border)] pt-5 mt-2;
+}
+
+.refreshText {
+  @apply text-[10px] text-[var(--text)] opacity-60;
+}
+
+.refreshBtn {
+  @apply py-2 px-3 border border-[var(--border)] rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-[var(--code-bg)] transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50;
+}
+
+.loadingSpinner {
+  @apply animate-spin h-3.5 w-3.5 text-[var(--text)];
+}
+
+.emptyState {
+  @apply text-center py-10 border border-dashed border-[var(--border)] rounded-2xl text-xs text-[var(--text)] opacity-75 flex flex-col items-center gap-2;
+}
+
+.emptyIcon {
+  @apply text-2xl;
+}
+

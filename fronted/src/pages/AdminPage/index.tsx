@@ -1,9 +1,91 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "./index.module.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://ashop-backend-4qwa.onrender.com";
+const API_URL = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : (import.meta.env.VITE_API_URL || "https://ashop-backend-4qwa.onrender.com");
+
+interface SuggestionProduct {
+  _id: string;
+  name: string;
+  price: number;
+  category: string;
+  stock: number;
+  tags: string[];
+  competitorPriceRange?: {
+    low: number | null;
+    high: number | null;
+    source: string;
+  };
+  aiSuggestions?: {
+    action: string;
+    reason: string;
+    suggestedPrice: number | null;
+    priority: "high" | "medium" | "low" | "";
+  };
+}
+
+interface NewProductSuggestion {
+  name: string;
+  category: string;
+  estimatedPrice: number;
+  reason: string;
+}
+
+interface MarketInsightData {
+  trending?: any;
+  marketAnalysis?: {
+    summary: string;
+    data: {
+      productAnalysis: any[];
+      newProductSuggestions: NewProductSuggestion[];
+      marketSummary: string;
+    };
+  } | null;
+  lastUpdated?: string | null;
+}
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  "Furniture": "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&q=80&w=800",
+  "Home Decor": "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&q=80&w=800",
+  "Scents": "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80&w=800",
+  "Apparel": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&q=80&w=800"
+};
+
+const FALLBACK_NEW_PRODUCTS: NewProductSuggestion[] = [
+  {
+    name: "Traditional Hand-Painted Rickshaw Art Ceramic Vase",
+    category: "Home Decor",
+    estimatedPrice: 650,
+    reason: "Rickshaw art is a recognized UNESCO Intangible Cultural Heritage. Highly popular for modern Bengali home decor."
+  },
+  {
+    name: "Premium Rajshahi Silk Embroidered Cushion Cover",
+    category: "Home Decor",
+    estimatedPrice: 850,
+    reason: "Leverages local heritage silk weavers. Premium positioning attracts high-end local & expat customers."
+  },
+  {
+    name: "Aarong-Style Nakshi Kantha Cotton Bed Runner",
+    category: "Home Decor",
+    estimatedPrice: 1850,
+    reason: "Traditional embroidery style is highly valued in urban apartments in Dhaka. Good profit margins."
+  },
+  {
+    name: "Sajek Valley Mist Sandalwood Candle",
+    category: "Scents",
+    estimatedPrice: 380,
+    reason: "Sandalwood with mountain dew notes, inspired by Sajek Valley tourism. Appeals to youth demographic."
+  },
+  {
+    name: "Asymmetric Sylhet Rattan Lounge Chair",
+    category: "Furniture",
+    estimatedPrice: 4200,
+    reason: "Sylhet rattan is lightweight and durable. Complements contemporary Japandi/Nordic design trends popular in Banani."
+  }
+];
 
 const AdminPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -13,10 +95,44 @@ const AdminPage: React.FC = () => {
   const [badge, setBadge] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [stock, setStock] = useState("20");
 
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Suggestions state
+  const [activeTab, setActiveTab] = useState<"adjustments" | "market-gaps">("adjustments");
+  const [suggestions, setSuggestions] = useState<SuggestionProduct[]>([]);
+  const [insights, setInsights] = useState<MarketInsightData | null>(null);
+  const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
+  const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+
+  const fetchSuggestionsAndInsights = async () => {
+    setIsFetchingSuggestions(true);
+    try {
+      const sugRes = await fetch(`${API_URL}/api/ai/admin/suggestions`);
+      const sugData = await sugRes.json();
+      if (sugData.success) {
+        setSuggestions(sugData.data || []);
+      }
+
+      const insRes = await fetch(`${API_URL}/api/ai/admin/insights`);
+      const insData = await insRes.json();
+      if (insData.success) {
+        setInsights(insData.data || null);
+      }
+    } catch (err) {
+      console.error("Error fetching AI suggestions or insights:", err);
+    } finally {
+      setIsFetchingSuggestions(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSuggestionsAndInsights();
+  }, []);
 
   // Handle client-side file upload to ImgBB
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,6 +192,7 @@ const AdminPage: React.FC = () => {
       badge,
       imageUrl,
       description,
+      stock: Number(stock),
     };
 
     try {
@@ -100,6 +217,9 @@ const AdminPage: React.FC = () => {
         setBadge("");
         setImageUrl("");
         setDescription("");
+        setStock("20");
+        // Re-fetch suggestions
+        fetchSuggestionsAndInsights();
       } else {
         setMessage({ type: "error", text: data.message || "Failed to create product." });
       }
@@ -107,6 +227,139 @@ const AdminPage: React.FC = () => {
       setMessage({ type: "error", text: "Server connection failed." });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleApplySuggestion = async (product: SuggestionProduct) => {
+    if (!product.aiSuggestions || !product.aiSuggestions.action) return;
+    setActionLoadingId(product._id);
+    setMessage(null);
+
+    const action = product.aiSuggestions.action;
+    const payload: Record<string, any> = {};
+
+    if (action === "increase_price" || action === "decrease_price") {
+      payload.price = product.aiSuggestions.suggestedPrice || product.price;
+    } else if (action === "increase_stock") {
+      payload.stock = (product.stock || 0) + 15;
+    } else if (action === "decrease_stock") {
+      payload.stock = Math.max(0, (product.stock || 0) - 5);
+    }
+
+    // Reset suggestion fields since they are applied
+    payload.aiSuggestions = {
+      action: "",
+      reason: "",
+      suggestedPrice: null,
+      priority: "",
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/api/products/${product._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: `Successfully applied AI recommendation for "${product.name}".`,
+        });
+        setSuggestions((prev) => prev.filter((p) => p._id !== product._id));
+      } else {
+        setMessage({ type: "error", text: data.message || "Failed to update product." });
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Connection error when applying suggestion." });
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleQuickAdd = async (suggestion: NewProductSuggestion, index: number) => {
+    setActionLoadingId(`new-${index}`);
+    setMessage(null);
+
+    const fallbackImg = CATEGORY_IMAGES[suggestion.category] || CATEGORY_IMAGES["Furniture"];
+    const productData = {
+      name: suggestion.name,
+      price: suggestion.estimatedPrice,
+      category: suggestion.category,
+      imageUrl: fallbackImg,
+      description: suggestion.reason,
+      stock: 20,
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/api/products`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(productData),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: `Product "${suggestion.name}" added to catalog successfully!`,
+        });
+        fetchSuggestionsAndInsights();
+      } else {
+        setMessage({ type: "error", text: data.message || "Failed to add product." });
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Connection error when quick-adding product." });
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handlePrefillForm = (suggestion: NewProductSuggestion) => {
+    setName(suggestion.name);
+    setPrice(suggestion.estimatedPrice.toString());
+    setCategory(suggestion.category);
+    setDescription(suggestion.reason);
+    setStock("20");
+    setImageUrl(CATEGORY_IMAGES[suggestion.category] || CATEGORY_IMAGES["Furniture"]);
+
+    setMessage({
+      type: "success",
+      text: "Form populated with suggestions. Review the details above and click 'Add Product Piece'!",
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleRunAnalysis = async () => {
+    setIsRunningAnalysis(true);
+    setMessage(null);
+    try {
+      const res = await fetch(`${API_URL}/api/ai/admin/run-analysis`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: "AI Market analysis completed successfully! Suggestions updated.",
+        });
+        fetchSuggestionsAndInsights();
+      } else {
+        setMessage({
+          type: "error",
+          text: data.message || "Failed to trigger analysis.",
+        });
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Could not connect to analysis server." });
+    } finally {
+      setIsRunningAnalysis(false);
     }
   };
 
@@ -211,6 +464,20 @@ const AdminPage: React.FC = () => {
                   className={styles.input}
                 />
               </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="stock" className={styles.label}>Stock Quantity *</label>
+                <input
+                  type="number"
+                  id="stock"
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                  placeholder="20"
+                  className={styles.input}
+                  min="0"
+                  required
+                />
+              </div>
             </div>
 
             {/* Image Upload Block */}
@@ -267,6 +534,199 @@ const AdminPage: React.FC = () => {
               {isSubmitting ? "Uploading Piece..." : "Add Product Piece"}
             </button>
           </form>
+        </div>
+
+        {/* AI Suggestions Dashboard */}
+        <div className={styles.dashboardCard}>
+          <div className={styles.header}>
+            <span className={styles.adminTag}>AI Catalog Optimizer</span>
+            <h2 className={styles.title}>AI Recommendations & Insights</h2>
+            <p className={styles.subtitle}>
+              Dynamic stock adjustments, price optimization, and catalog suggestions tailored for the Bangladeshi market.
+            </p>
+          </div>
+
+          {/* Tab Selection */}
+          <div className={styles.tabHeader}>
+            <button
+              onClick={() => setActiveTab("adjustments")}
+              className={`${styles.tabBtn} ${activeTab === "adjustments" ? styles.tabBtnActive : ""}`}
+            >
+              Adjustments ({suggestions.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("market-gaps")}
+              className={`${styles.tabBtn} ${activeTab === "market-gaps" ? styles.tabBtnActive : ""}`}
+            >
+              BD Market Standards & Opportunities
+            </button>
+          </div>
+
+          {/* Insights Summary (Market analysis) */}
+          {insights?.marketAnalysis?.summary && (
+            <div className={styles.marketSummaryCard}>
+              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                <span style={{ fontSize: "14px" }}>💡</span>
+                <span className={styles.label} style={{ fontSize: "9px" }}>Market Intelligence Summary</span>
+              </div>
+              <p style={{ margin: 0 }}>{insights.marketAnalysis.summary}</p>
+            </div>
+          )}
+
+          {isFetchingSuggestions ? (
+            <div className={styles.emptyState}>
+              <div className={styles.loadingSpinner} />
+              <span>Scanning database and fetching AI suggestions...</span>
+            </div>
+          ) : activeTab === "adjustments" ? (
+            /* Tab 1: Pricing & Stock Adjustments */
+            <div className={styles.suggestionsGrid}>
+              {suggestions.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <span className={styles.emptyIcon}>🎉</span>
+                  <span>All catalog pricing and stock levels are currently optimized!</span>
+                  <span style={{ opacity: 0.6, fontSize: "10px" }}>
+                    Run a manual AI analysis below to re-evaluate after changes.
+                  </span>
+                </div>
+              ) : (
+                suggestions.map((product) => {
+                  const priority = product.aiSuggestions?.priority || "low";
+                  const action = product.aiSuggestions?.action || "";
+                  const suggestedPrice = product.aiSuggestions?.suggestedPrice;
+                  const reason = product.aiSuggestions?.reason || "Price or stock review recommended.";
+                  
+                  // Friendly display name for actions
+                  let actionText = "";
+                  if (action === "increase_price") actionText = `Increase Price to ৳${suggestedPrice}`;
+                  else if (action === "decrease_price") actionText = `Decrease Price to ৳${suggestedPrice}`;
+                  else if (action === "increase_stock") actionText = "Increase Stock (+15 items)";
+                  else if (action === "decrease_stock") actionText = "Decrease Stock (-5 items)";
+                  else if (action === "add_variant") actionText = "Add Product Variant";
+                  else if (action === "discontinue") actionText = "Discontinue Item";
+                  else actionText = action.replace("_", " ");
+
+                  return (
+                    <div key={product._id} className={styles.suggestionCard}>
+                      <div className={styles.suggestionInfo}>
+                        <div className={styles.suggestionTitleRow}>
+                          <span className={styles.productName}>{product.name}</span>
+                          <span className={`${styles.badge} ${styles.badgeAction}`}>
+                            {actionText}
+                          </span>
+                          <span
+                            className={`${styles.badge} ${
+                              priority === "high"
+                                ? styles.badgeHigh
+                                : priority === "medium"
+                                ? styles.badgeMedium
+                                : styles.badgeLow
+                            }`}
+                          >
+                            {priority} Priority
+                          </span>
+                        </div>
+
+                        <div className={styles.suggestionMeta}>
+                          <span>Category: <strong>{product.category}</strong></span>
+                          <span>Current Price: <strong>৳{product.price}</strong></span>
+                          <span>Current Stock: <strong>{product.stock} units</strong></span>
+                        </div>
+
+                        <p className={styles.suggestionReason}>{reason}</p>
+                      </div>
+
+                      <div className={styles.suggestionActions}>
+                        {product.competitorPriceRange && (product.competitorPriceRange.low || product.competitorPriceRange.high) && (
+                          <div className={styles.competitorBox}>
+                            <span style={{ opacity: 0.6 }}>Competitor Range</span>
+                            <strong>
+                              ৳{product.competitorPriceRange.low || "?"} - ৳{product.competitorPriceRange.high || "?"}
+                            </strong>
+                            <span style={{ fontSize: "8px", opacity: 0.5 }}>via Daraz/Evaly</span>
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => handleApplySuggestion(product)}
+                          disabled={actionLoadingId !== null}
+                          className={styles.primaryActionBtn}
+                        >
+                          {actionLoadingId === product._id ? "Applying..." : "Apply"}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          ) : (
+            /* Tab 2: Bangladeshi Market Suggestions (Market Opportunities) */
+            <div className={styles.suggestionsGrid}>
+              {(() => {
+                const items = insights?.marketAnalysis?.data?.newProductSuggestions || FALLBACK_NEW_PRODUCTS;
+                return items.map((item, idx) => (
+                  <div key={idx} className={styles.suggestionCard}>
+                    <div className={styles.suggestionInfo}>
+                      <div className={styles.suggestionTitleRow}>
+                        <span className={styles.productName}>{item.name}</span>
+                        <span className={`${styles.badge} ${styles.badgeAction}`}>
+                          Estimated: ৳{item.estimatedPrice}
+                        </span>
+                      </div>
+                      <div className={styles.suggestionMeta}>
+                        <span>Target Category: <strong>{item.category}</strong></span>
+                      </div>
+                      <p className={styles.suggestionReason}>{item.reason}</p>
+                    </div>
+
+                    <div className={styles.suggestionActions}>
+                      <button
+                        onClick={() => handlePrefillForm(item)}
+                        className={styles.actionBtn}
+                      >
+                        Pre-fill Form
+                      </button>
+                      <button
+                        onClick={() => handleQuickAdd(item, idx)}
+                        disabled={actionLoadingId !== null}
+                        className={styles.primaryActionBtn}
+                      >
+                        {actionLoadingId === `new-${idx}` ? "Creating..." : "Quick Add"}
+                      </button>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          )}
+
+          {/* Refresh / Run Analysis Section */}
+          <div className={styles.refreshRow}>
+            <span className={styles.refreshText}>
+              Last AI catalog analysis update:{" "}
+              <strong>
+                {insights?.lastUpdated ? new Date(insights.lastUpdated).toLocaleString() : "Never"}
+              </strong>
+            </span>
+
+            <button
+              onClick={handleRunAnalysis}
+              disabled={isRunningAnalysis}
+              className={styles.refreshBtn}
+            >
+              {isRunningAnalysis ? (
+                <>
+                  <div className={styles.loadingSpinner} />
+                  <span>Running AI Scan...</span>
+                </>
+              ) : (
+                <>
+                  <span>✨ Run AI Market Analysis</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </main>
 
